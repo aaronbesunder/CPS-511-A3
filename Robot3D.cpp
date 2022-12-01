@@ -423,7 +423,8 @@ void reshape(int w, int h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLdouble)w / h, 0.2, 40.0);
+	//gluPerspective(60.0, (GLdouble)w / h, 0.2, 40.0);
+	gluPerspective(60.0, (GLdouble)w / h, 0.10, 100.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -442,7 +443,8 @@ void display(void)
 	glLoadIdentity();
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 30) looking at the origin, up along positive y axis
-	gluLookAt(0.0, 6.0, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//gluLookAt(0.0, 6.0, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 6.0, 35.0, 0.0, -5.0, 0.0, 0.0, 1.0, 0.0);
 
 	// Draw Robot
 
