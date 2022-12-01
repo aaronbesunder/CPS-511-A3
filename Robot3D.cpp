@@ -1555,85 +1555,130 @@ void keyboard(unsigned char key, int x, int y)
 	{
 
 	case 'r':
+		// Bot Four
 		botFour_angle += 2.0;
+		// Bot Three
+		botThree_robotAngle += botThree_rotateSpeed;
+		if (botThree_robotAngle >= 360)
+			{ botThree_robotAngle -= 360.0; }
 		break;
+
 	case 'R':
+		// Bot Four
 		botFour_angle -= 2.0;
+		// Bot Three
+		botThree_robotAngle -= botThree_rotateSpeed;
+		if (botThree_robotAngle < 0)
+			{ botThree_robotAngle += 360.0; }
 		break;
+
 	case 'b':
+		// Bot Four
 		botFour_bodyAngle += 2.0;
+		// Bot Three
+		botThree_bodyAngle += botThree_rotateSpeed;
+		if (botThree_bodyAngle >= 360)
+			{ botThree_bodyAngle -= 360.0; }
 		break;
+
 	case 'B':
+		// Bot Four
 		botFour_bodyAngle -= 2.0;
+		// Bot Three
+		botThree_bodyAngle -= botThree_rotateSpeed;
+		if (botThree_bodyAngle < 0)
+			{ botThree_bodyAngle += 360.0; }
 		break;
 
 	case 'h':
-		botFour_leftLegAngle += 1;
+		// Bot Four
+		botFour_leftLegAngle += 2.0;
+		// Bot Three
+		botThree_hipAngle += botThree_rotateSpeed;
+		if (botThree_hipAngle >= 360)
+			{ botThree_hipAngle -= 360.0; }
 		break;
-
 
 	case'H':
-		botFour_leftLegAngle -= 1;
+		// Bot Four
+		botFour_leftLegAngle -= 2.0;
+		// Bot Three
+		botThree_hipAngle -= botThree_rotateSpeed;
+		if (botThree_hipAngle < 0)
+			{ botThree_hipAngle += 360.0; }
 		break;
 
-
 	case 'k':
+		// Bot Four
 		if (botFour_leftLegAngle2 >= -132 && botFour_leftLegAngle2 < 132.0)
-		{
-			botFour_leftLegAngle2 += 2.0;
-			printf("%lf\n", botFour_leftLegAngle2);
-			break;
-		}
-		else {
-			break;
-		}
+			{ botFour_leftLegAngle2 += 2.0; }
+		// Bot Three
+		botThree_kneeAngle += botThree_rotateSpeed;
+		if (botThree_kneeAngle >= 360)
+			{ botThree_kneeAngle -= 360.0; }
+		break;
 
 
 	case 'K':
+		// Bot Four
 		if (botFour_leftLegAngle2 > -132 && botFour_leftLegAngle2 <= 132)
-		{
-			botFour_leftLegAngle2 -= 2.0;
-			printf("%lf\n", botFour_leftLegAngle2);
-			break;
-		}
-		else {
-			break;
-		}
+			{ botFour_leftLegAngle2 -= 2.0; }
+		// Bot Three
+		botThree_kneeAngle -= botThree_rotateSpeed;
+		if (botThree_kneeAngle < 0)
+			{ botThree_kneeAngle += 360.0; }
+		break;
+
 	case 'f':
+		// Bot Four
 		if (botFour_leftLegAngle3 >= -132 && botFour_leftLegAngle3 < 74)
-		{
-			botFour_leftLegAngle3 += 2.0;
-			printf("%lf\n", botFour_leftLegAngle3);
-			break;
-		}
-		else {
-			break;
-		}
+			{ botFour_leftLegAngle3 += 2.0; }
+		break;
 
 
 	case 'F':
+		// Bot Four
 		if (botFour_leftLegAngle3 > -52 && botFour_leftLegAngle3 <= 132)
 		{
 			botFour_leftLegAngle3 -= 2.0;
 			printf("%lf\n", botFour_leftLegAngle3);
 			break;
 		}
-		else {
-			break;
-		}
+		break;
+
 	case 'c':
+		// Bot Four
 		botFour_gunStop = false;
 		glutTimerFunc(10, botFour_gunHandler, 0);
+		// Bot Three
+		if (botThree_cannonRotation == false)
+		{
+			botThree_cannonRotation = true;
+			glutTimerFunc(10, botThree_cannonAnimationHandler, 0);
+		}
 		break;
 	case 'C':
+		// Bot Four
 		botFour_gunStop = true;
+		// Bot Three
+		botThree_cannonRotation = false;
 		break;
 	case 'w':
+		// Bot Four
 		glutIdleFunc(botFour_takeStep);
 		botFour_start = false;
+		// Bot Three
+		if (botThree_walkCycle == false)
+		{
+			botThree_walkCycle = true;
+			glutTimerFunc(10, botThree_walkAnimationHandler, 0);
+		}
 		break;
 	case 'W':
+		// Bot Four
 		botFour_stop = true;
+		// Bot Three
+		botThree_walkCycle = false;
 		break;
 	}
 
