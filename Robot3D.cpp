@@ -459,12 +459,18 @@ void display(void)
 	glPushMatrix();
 		glTranslatef(-10, 0, 0);
 		botThree_drawRobot();
+
+		if (help == true) 
+		{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Bot Four
 	glPushMatrix();
 		glTranslatef(10, 0, 0);
 		botFour_drawRobot();
+
+		if (help == true) 
+		{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Help
@@ -1456,8 +1462,8 @@ void drawHelp()
 
 	drawLeftText();
 	drawRightText();
-	if (help == true) 
-		{ drawCoordinates(); }
+	/*if (help == true) 
+		{ drawCoordinates(); }*/
 
 	glEnable(GL_LIGHTING);
 }
@@ -1503,18 +1509,7 @@ void drawRightText()
 		}
 		else
 		{
-			char jointStr[] = "     ";
-			if (strcmp(botThree_jointSelection, "    ") == 0)
-				{ strcpy_s(jointStr, "None "); }
-			else if (strcmp(botThree_jointSelection, "body") == 0)
-				{ strcpy_s(jointStr, "Body "); }
-			else if (strcmp(botThree_jointSelection, "hip ") == 0)
-				{ strcpy_s(jointStr, "Hip  "); }
-			else if (strcmp(botThree_jointSelection, "knee") == 0)
-				{ strcpy_s(jointStr, "Knee "); }
-			else if (strcmp(botThree_jointSelection, "rspd") == 0)
-				{ strcpy_s(jointStr, "Speed"); }
-			sprintf_s(str, "\n\nRobot Angle: %0.1f\n\nJoint Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\nSelected: %s\n\nRotation Speed: %0.1f", botThree_robotAngle, botThree_bodyAngle, botThree_rightHipAngle, botThree_rightKneeAngle, jointStr, botThree_rotateSpeed);
+			sprintf_s(str, "\n\nRobot Angle: %0.1f\n\nJoint Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f", botThree_robotAngle, botThree_bodyAngle, botThree_rightHipAngle, botThree_rightKneeAngle, botThree_rotateSpeed);
 		}
 		glutBitmapString(GLUT_BITMAP_HELVETICA_12, reinterpret_cast<const unsigned char*>
 			(str));
@@ -1523,6 +1518,8 @@ void drawRightText()
 
 void drawCoordinates()
 {
+	glDisable(GL_LIGHTING);
+
 	glPushMatrix();
 		GLfloat lineLen = 11.0f;
 
@@ -1564,6 +1561,8 @@ void drawCoordinates()
 
 		glLineWidth(1.0);
 	glPopMatrix();
+
+	glEnable(GL_LIGHTING);
 }
 
 // --------------------------
@@ -1679,7 +1678,7 @@ void keyboard(unsigned char key, int x, int y)
 		if (botFour_leftLegAngle3 > -52 && botFour_leftLegAngle3 <= 132)
 		{
 			botFour_leftLegAngle3 -= 2.0;
-			printf("%lf\n", botFour_leftLegAngle3);
+			//printf("%lf\n", botFour_leftLegAngle3);
 			break;
 		}
 		break;
