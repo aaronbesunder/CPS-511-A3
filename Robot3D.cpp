@@ -2034,7 +2034,13 @@ void translateAnimationHandler(int param)
 	glutPostRedisplay();
 	//If not all at end of line, continue
 	if (threeStopped == 2)
-		{ botThree_walkCycle = false; }
+	{
+		botThree_walkCycle = false;
+		botThree_rightHipAngle = 45.0;
+		botThree_leftHipAngle = 45.0;
+		botThree_rightKneeAngle = 270.0;
+		botThree_leftKneeAngle = 270.0;
+	}
 	if ((threeStopped != 2) && (fourStopped != 2))
 		{ glutTimerFunc(10, translateAnimationHandler, 0); }
 }
