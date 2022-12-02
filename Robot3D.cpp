@@ -1986,13 +1986,16 @@ void mouseMotionHandler(int xMouse, int yMouse)
 
 void translateAnimationHandler(int param)
 {
-	// Walk Cycle
-	// Bot Three
+	// Walk Cycle: Bot Three
 	if (botThree_walkCycle == false)
 	{
 		botThree_walkCycle = true;
 		glutTimerFunc(10, botThree_walkAnimationHandler, 0);
 	}
+
+	// Walk Cycle: Bot Four
+	glutIdleFunc(botFour_takeStep);
+	botFour_start = false;
 	
 	// Update Z
 	double speed = 0.2;
