@@ -86,10 +86,6 @@ float rotateSpeed = 2.0;
 //Control joints
 char botThree_jointSelection[] = "    ";
 float botThree_bodyAngle = 0.0;
-float botThree_rightHipAngle = 45.0;
-float botThree_leftHipAngle = 45.0;
-float botThree_rightKneeAngle = 270.0;
-float botThree_leftKneeAngle = 270.0;
 
 //Control cannon rotation
 bool botThree_cannonRotation = false;
@@ -97,8 +93,6 @@ float botThree_cannonAngle = 0.0;
 
 //Control walk rotation
 bool botThree_walkCycle = false;
-int botThree_rightWalkIndex = 0;
-int botThree_leftWalkIndex = 67;
 float botThree_walkArr[][2] = {
 	{45.0, 270.0},
 	{46.0, 271.0},
@@ -242,17 +236,17 @@ float botThree_walkArr[][2] = {
 };
 
 // Functions
-void botThree_drawRobot(bool);
+void botThree_drawRobot(bool, int);
 
 void botThree_drawBody();
 void botThree_drawCannons();
 
-void botThree_drawLeg(bool);
+void botThree_drawLeg(bool, int, int, int, int);
 void botThree_drawHipJoint(int);
 void botThree_drawUpperLeg();
 void botThree_drawKneeJoint(int);
 void botThree_drawLowerLeg();
-void botThree_drawFoot(int, bool);
+void botThree_drawFoot(int, bool, int, int);
 
 void botThree_cannonAnimationHandler(int param);
 void botThree_walkAnimationHandler(int param);
@@ -287,11 +281,23 @@ GLfloat endingZ = 0;
 bool botThreeOne_active = true;
 GLfloat botThreeOne_X = -10;
 GLfloat botThreeOne_Z = startingZ;
+float botThreeOne_rightHipAngle = 45.0;
+float botThreeOne_leftHipAngle = 45.0;
+float botThreeOne_rightKneeAngle = 270.0;
+float botThreeOne_leftKneeAngle = 270.0;
+int botThreeOne_rightWalkIndex = 0;
+int botThreeOne_leftWalkIndex = 67;
 
 // BotThree: Two
 bool botThreeTwo_active = true;
 GLfloat botThreeTwo_X = 30;
 GLfloat botThreeTwo_Z = startingZ;
+float botThreeTwo_rightHipAngle = 45.0;
+float botThreeTwo_leftHipAngle = 45.0;
+float botThreeTwo_rightKneeAngle = 270.0;
+float botThreeTwo_leftKneeAngle = 270.0;
+int botThreeTwo_rightWalkIndex = 0;
+int botThreeTwo_leftWalkIndex = 67;
 
 // BotFour: One
 bool botFourOne_active = true;
@@ -508,7 +514,7 @@ void display(void)
 	// Bot Three: One
 	glPushMatrix();
 		glTranslatef(botThreeOne_X, botThree_Y, botThreeOne_Z);
-		botThree_drawRobot(botThreeOne_active);
+		botThree_drawRobot(botThreeOne_active, 1);
 
 		if (help == true) 
 		{ drawCoordinates(); }
@@ -517,7 +523,7 @@ void display(void)
 	// Bot Three: Two
 	glPushMatrix();
 	glTranslatef(botThreeTwo_X, botThree_Y, botThreeTwo_Z);
-	botThree_drawRobot(botThreeTwo_active);
+	botThree_drawRobot(botThreeTwo_active, 2);
 
 	if (help == true)
 	{
@@ -940,14 +946,34 @@ void botFour_takeStep() {
 // --- Bot Three ---
 // -----------------
 
-void botThree_drawRobot(bool active)
+void botThree_drawRobot(bool active, int botNum)
 {
+	// Bot Number
+	float leftHipAngle = 0;
+	float rightHipAngle = 0;
+	float leftKneeAngle = 0;
+	float rightKneeAngle = 0;
+	if (botNum == 1)
+	{
+		leftHipAngle = botThreeOne_leftHipAngle;
+		rightHipAngle = botThreeOne_rightHipAngle;
+		leftKneeAngle = botThreeOne_leftKneeAngle;
+		rightKneeAngle = botThreeOne_rightKneeAngle;
+	}
+	else if (botNum == 2)
+	{
+		leftHipAngle = botThreeTwo_leftHipAngle;
+		rightHipAngle = botThreeTwo_rightHipAngle;
+		leftKneeAngle = botThreeTwo_leftKneeAngle;
+		rightKneeAngle = botThreeTwo_rightKneeAngle;
+	}
+
 	glPushMatrix();
 		// spin robot on base. 
 		glRotatef(botThree_robotAngle, 0.0, 1.0, 0.0);
 
 		botThree_drawBody();
-		botThree_drawLeg(active);
+		botThree_drawLeg(active, leftHipAngle, rightHipAngle, leftKneeAngle, rightKneeAngle);
 
 	glPopMatrix();
 }
@@ -1116,7 +1142,7 @@ void botThree_drawCannons()
 	}
 }
 
-void botThree_drawLeg(bool active)
+void botThree_drawLeg(bool active, int leftHipAngle, int rightHipAngle, int leftKneeAngle, int rightKneeAngle)
 {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botThree_robotJoints_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botThree_robotJoints_mat_specular);
@@ -1144,9 +1170,9 @@ void botThree_drawLeg(bool active)
 			if (active)
 			{
 				if (legNum == -1)
-					{ glRotatef(botThree_rightHipAngle, 1.0, 0.0, 0.0);	}
+					{ glRotatef(rightHipAngle, 1.0, 0.0, 0.0);	}
 				else if (legNum == 1)
-					{ glRotatef(botThree_leftHipAngle, 1.0, 0.0, 0.0);	}
+					{ glRotatef(leftHipAngle, 1.0, 0.0, 0.0);	}
 			}
 			else
 				{ glRotatef(45, 1.0, 0.0, 0.0); }
@@ -1184,9 +1210,9 @@ void botThree_drawLeg(bool active)
 						if (active)
 						{
 							if (legNum == -1)
-								{ glRotatef(botThree_rightKneeAngle, 1.0, 0.0, 0.0); }
+								{ glRotatef(rightKneeAngle, 1.0, 0.0, 0.0); }
 							else if (legNum == 1)
-								{ glRotatef(botThree_leftKneeAngle, 1.0, 0.0, 0.0); }
+								{ glRotatef(leftKneeAngle, 1.0, 0.0, 0.0); }
 						}
 						else
 							{ glRotatef(270, 1.0, 0.0, 0.0); }
@@ -1196,7 +1222,10 @@ void botThree_drawLeg(bool active)
 						botThree_drawLowerLeg();
 
 						//Foot
-						botThree_drawFoot(legNum, active);
+						if (legNum == -1)
+							{ botThree_drawFoot(legNum, active, rightHipAngle, rightKneeAngle); }
+						else if (legNum == 1)
+							{ botThree_drawFoot(legNum, active, leftHipAngle, leftKneeAngle); }
 
 					glPopMatrix();//Lower Leg
 
@@ -1346,7 +1375,7 @@ void botThree_drawLowerLeg()
 	glPopMatrix();//Create Lower Leg
 }
 
-void botThree_drawFoot(int legNum, bool active)
+void botThree_drawFoot(int legNum, bool active, int hipAngle, int kneeAngle)
 {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botThree_robotJoints_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botThree_robotJoints_mat_specular);
@@ -1360,28 +1389,14 @@ void botThree_drawFoot(int legNum, bool active)
 
 		if (active)
 		{
-			if (legNum == -1)
-			{
-				//Get Foot Angle
-				float footAngle = botThree_rightHipAngle + botThree_rightKneeAngle;
-				while (footAngle > 360)
-					{ footAngle -= 360; }
-
-				//Unrotate Foot Angle if clip
-				if (footAngle > 180)
-					{ glRotatef(-footAngle, 1.0, 0.0, 0.0); }
-			}
-			else if (legNum == 1)
-			{
-				//Get Foot Angle
-				float footAngle = botThree_leftHipAngle + botThree_leftKneeAngle;
-				while (footAngle > 360)
-					{ footAngle -= 360; }
-
-				//Unrotate Foot Angle if clip
-				if (footAngle > 180)
-					{ glRotatef(-footAngle, 1.0, 0.0, 0.0); }
-			}
+			//Get Foot Angle
+			float footAngle = hipAngle + kneeAngle;
+			while (footAngle > 360)
+				{ footAngle -= 360; }
+				
+			//Unrotate Foot Angle if clip
+			if (footAngle > 180)
+				{ glRotatef(-footAngle, 1.0, 0.0, 0.0); }	
 		}
 		else
 			{ glRotatef(-315, 1.0, 0.0, 0.0); }
@@ -1527,24 +1542,69 @@ void botThree_walkAnimationHandler(int param)
 	{
 		int arrLen = (int)(sizeof(botThree_walkArr) / sizeof(botThree_walkArr[0]));
 
-		// Right Leg
-		botThree_rightHipAngle = botThree_walkArr[botThree_rightWalkIndex][0];
-		botThree_rightKneeAngle = botThree_walkArr[botThree_rightWalkIndex][1];
-		botThree_rightWalkIndex++;
+		// BotThree: One
+		if (botThreeOne_active)
+		{
+			// Right Leg
+			botThreeOne_rightHipAngle = botThree_walkArr[botThreeOne_rightWalkIndex][0];
+			botThreeOne_rightKneeAngle = botThree_walkArr[botThreeOne_rightWalkIndex][1];
+			botThreeOne_rightWalkIndex++;
 
-		if (botThree_rightWalkIndex >= arrLen)
-			{ botThree_rightWalkIndex = 0; }
+			if (botThreeOne_rightWalkIndex >= arrLen)
+				{ botThreeOne_rightWalkIndex = 0; }
 
-		// Left Leg
-		botThree_leftHipAngle = botThree_walkArr[botThree_leftWalkIndex][0];
-		botThree_leftKneeAngle = botThree_walkArr[botThree_leftWalkIndex][1];
-		botThree_leftWalkIndex++;
+			// Left Leg
+			botThreeOne_leftHipAngle = botThree_walkArr[botThreeOne_leftWalkIndex][0];
+			botThreeOne_leftKneeAngle = botThree_walkArr[botThreeOne_leftWalkIndex][1];
+			botThreeOne_leftWalkIndex++;
 
-		if (botThree_leftWalkIndex >= arrLen)
-			{ botThree_leftWalkIndex = 0; }
+			if (botThreeOne_leftWalkIndex >= arrLen)
+				{ botThreeOne_leftWalkIndex = 0; }
+		}
+		else
+		{
+			botThreeOne_rightHipAngle = 45.0;
+			botThreeOne_leftHipAngle = 45.0;
+			botThreeOne_rightKneeAngle = 270.0;
+			botThreeOne_leftKneeAngle = 270.0;
+		}
 
-		glutPostRedisplay();
-		glutTimerFunc(10, botThree_walkAnimationHandler, 0);
+		// BotThree: Two
+		if (botThreeTwo_active)
+		{
+			// Right Leg
+			botThreeTwo_rightHipAngle = botThree_walkArr[botThreeTwo_rightWalkIndex][0];
+			botThreeTwo_rightKneeAngle = botThree_walkArr[botThreeTwo_rightWalkIndex][1];
+			botThreeTwo_rightWalkIndex++;
+
+			if (botThreeTwo_rightWalkIndex >= arrLen)
+				{ botThreeTwo_rightWalkIndex = 0; }
+
+			// Left Leg
+			botThreeTwo_leftHipAngle = botThree_walkArr[botThreeTwo_leftWalkIndex][0];
+			botThreeTwo_leftKneeAngle = botThree_walkArr[botThreeTwo_leftWalkIndex][1];
+			botThreeTwo_leftWalkIndex++;
+
+			if (botThreeTwo_leftWalkIndex >= arrLen)
+				{ botThreeTwo_leftWalkIndex = 0; }
+		}
+		else
+		{
+			botThreeTwo_rightHipAngle = 45.0;
+			botThreeTwo_leftHipAngle = 45.0;
+			botThreeTwo_rightKneeAngle = 270.0;
+			botThreeTwo_leftKneeAngle = 270.0;
+		}
+
+		// Both not active
+		if ((!botThreeOne_active) && (!botThreeTwo_active))
+			{ botThree_walkCycle = false; }
+		else
+		{
+			glutPostRedisplay();
+			glutTimerFunc(10, botThree_walkAnimationHandler, 0);
+		}
+			
 	}
 }
 
@@ -1617,7 +1677,7 @@ void drawRightText()
 		else
 		{
 			sprintf_s(str, "Robot Angle: %0.1f\n\nBotThree Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f", 
-				botThree_robotAngle, botThree_bodyAngle, botThree_rightHipAngle, botThree_rightKneeAngle, 
+				botThree_robotAngle, botThree_bodyAngle, botThreeOne_rightHipAngle, botThreeOne_rightKneeAngle, 
 				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle, rotateSpeed);
 		}
 		glutBitmapString(GLUT_BITMAP_HELVETICA_12, reinterpret_cast<const unsigned char*>
@@ -1734,12 +1794,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftHipAngle -= 360.0;
 		}
 		// Bot Three
-		botThree_rightHipAngle += rotateSpeed;
-		botThree_leftHipAngle += rotateSpeed;
-		if (botThree_rightHipAngle >= 360)
+		botThreeTwo_rightHipAngle += rotateSpeed;
+		botThreeTwo_leftHipAngle += rotateSpeed;
+		if (botThreeTwo_rightHipAngle >= 360)
 		{ 
-			botThree_rightHipAngle -= 360.0;
-			botThree_leftHipAngle -= 360.0;
+			botThreeTwo_rightHipAngle -= 360.0;
+			botThreeTwo_leftHipAngle -= 360.0;
 		}
 		break;
 
@@ -1753,12 +1813,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftHipAngle += 360.0;
 		}
 		// Bot Three
-		botThree_rightHipAngle -= rotateSpeed;
-		botThree_leftHipAngle -= rotateSpeed;
-		if (botThree_rightHipAngle < 0)
+		botThreeTwo_rightHipAngle -= rotateSpeed;
+		botThreeTwo_leftHipAngle -= rotateSpeed;
+		if (botThreeTwo_rightHipAngle < 0)
 		{
-			botThree_rightHipAngle += 360.0;
-			botThree_leftHipAngle += 360.0;
+			botThreeTwo_rightHipAngle += 360.0;
+			botThreeTwo_leftHipAngle += 360.0;
 		}
 		break;
 
@@ -1772,12 +1832,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftKneeAngle -= 360.0;
 		}
 		// Bot Three
-		botThree_rightKneeAngle += rotateSpeed;
-		botThree_leftKneeAngle += rotateSpeed;
-		if (botThree_rightKneeAngle >= 360)
+		botThreeTwo_rightKneeAngle += rotateSpeed;
+		botThreeTwo_leftKneeAngle += rotateSpeed;
+		if (botThreeTwo_rightKneeAngle >= 360)
 		{
-			botThree_rightKneeAngle -= 360.0;
-			botThree_leftKneeAngle -= 360.0;
+			botThreeTwo_rightKneeAngle -= 360.0;
+			botThreeTwo_leftKneeAngle -= 360.0;
 		}
 		break;
 
@@ -1792,12 +1852,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftKneeAngle += 360.0;
 		}
 		// Bot Three
-		botThree_rightKneeAngle -= rotateSpeed;
-		botThree_leftKneeAngle -= rotateSpeed;
-		if (botThree_rightKneeAngle < 0)
+		botThreeTwo_rightKneeAngle -= rotateSpeed;
+		botThreeTwo_leftKneeAngle -= rotateSpeed;
+		if (botThreeTwo_rightKneeAngle < 0)
 		{
-			botThree_rightKneeAngle += 360.0;
-			botThree_leftKneeAngle += 360.0;
+			botThreeTwo_rightKneeAngle += 360.0;
+			botThreeTwo_leftKneeAngle += 360.0;
 		}
 		break;
 
@@ -1878,10 +1938,18 @@ void keyboard(unsigned char key, int x, int y)
 		botThree_robotAngle = 0.0;
 		botThree_cannonAngle = 0.0;
 		botThree_bodyAngle = 0.0;
-		botThree_rightHipAngle = 45.0;
-		botThree_leftHipAngle = 45.0;
-		botThree_rightKneeAngle = 270.0;
-		botThree_leftKneeAngle = 270.0;
+		botThreeOne_rightHipAngle = 45.0;
+		botThreeOne_leftHipAngle = 45.0;
+		botThreeOne_rightKneeAngle = 270.0;
+		botThreeOne_leftKneeAngle = 270.0;
+		botThreeOne_leftWalkIndex = 67;
+		botThreeOne_rightWalkIndex = 0;
+		botThreeTwo_rightHipAngle = 45.0;
+		botThreeTwo_leftHipAngle = 45.0;
+		botThreeTwo_rightKneeAngle = 270.0;
+		botThreeTwo_leftKneeAngle = 270.0;
+		botThreeTwo_leftWalkIndex = 67;
+		botThreeTwo_rightWalkIndex = 0;
 
 		botThree_cannonRotation = false;
 		botThree_walkCycle = false;
@@ -1991,56 +2059,35 @@ void translateAnimationHandler(int param)
 	
 	// Update Z
 	double speed = 0.2;
-	int threeStopped = 0;
-	int fourStopped = 0;
 
 	if (botThreeOne_active)
 	{
 		botThreeOne_Z += speed;
 		if (botThreeOne_Z >= endingZ)
-		{
-			botThreeOne_active = false;
-			threeStopped++;
-		}
+			{ botThreeOne_active = false; }
 	}
 	if (botThreeTwo_active)
 	{
 		botThreeTwo_Z += speed;
 		if (botThreeTwo_Z >= endingZ)
-		{
-			botThreeTwo_active = false;
-			threeStopped++;
-		}
+			{ botThreeTwo_active = false;	}
 	}
+
 	if (botFourOne_active)
 	{
 		botFourOne_Z += speed;
 		if (botFourOne_Z >= endingZ)
-		{
-			botFourOne_active = false;
-			fourStopped++;
-		}
+			{ botFourOne_active = false; }
 	}
 	if (botFourTwo_active)
 	{
 		botFourTwo_Z += speed;
 		if (botFourTwo_Z >= endingZ)
-		{
-			botFourTwo_active = false;
-			fourStopped++;
-		}
+			{ botFourTwo_active = false; }
 	}
 
 	glutPostRedisplay();
 	//If not all at end of line, continue
-	if (threeStopped == 2)
-	{
-		botThree_walkCycle = false;
-		botThree_rightHipAngle = 45.0;
-		botThree_leftHipAngle = 45.0;
-		botThree_rightKneeAngle = 270.0;
-		botThree_leftKneeAngle = 270.0;
-	}
-	if ((threeStopped != 2) && (fourStopped != 2))
+	if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
 		{ glutTimerFunc(10, translateAnimationHandler, 0); }
 }
