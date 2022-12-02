@@ -847,8 +847,6 @@ void botFour_drawRightLeg()
 
 	glPopMatrix();
 	glPopMatrix();
-	
-	
 
 }
 
@@ -862,7 +860,6 @@ void botFour_animateUpperLegUp()
 			//printf("%lf\n", botFour_leftHipAngle);
 			glutPostRedisplay();
 		}
-
 	}
 }
 
@@ -892,8 +889,6 @@ void botFour_animateUpperLegDown()
 			glutPostRedisplay();
 			botFour_firstcheck = true;
 		}
-
-
 	}
 }
 //move lower leg down
@@ -906,7 +901,6 @@ void botFour_animateLowerLegDown()
 			//printf("%lf\n", botFour_leftKneeAngle);
 			glutPostRedisplay();
 		}
-
 	}
 }
 
@@ -936,11 +930,9 @@ void botFour_takeStep() {
 	}
 	else if (botFour_reverse == true && botFour_leftHipAngle<=0) {
 		botFour_animateUpperLegDown();
-
 	}
 	else if (botFour_reverse == true && botFour_firstcheck==true && botFour_leftKneeAngle >= botFour_leftleginit) {
 		botFour_animateLowerLegDown();
-		
 	}
 }
 
@@ -1999,7 +1991,8 @@ void translateAnimationHandler(int param)
 	
 	// Update Z
 	double speed = 0.2;
-	int stopped = 0;
+	int threeStopped = 0;
+	int fourStopped = 0;
 
 	if (botThreeOne_active)
 	{
@@ -2007,7 +2000,7 @@ void translateAnimationHandler(int param)
 		if (botThreeOne_Z >= endingZ)
 		{
 			botThreeOne_active = false;
-			stopped++;
+			threeStopped++;
 		}
 	}
 	if (botThreeTwo_active)
@@ -2016,7 +2009,7 @@ void translateAnimationHandler(int param)
 		if (botThreeTwo_Z >= endingZ)
 		{
 			botThreeTwo_active = false;
-			stopped++;
+			threeStopped++;
 		}
 	}
 	if (botFourOne_active)
@@ -2025,7 +2018,7 @@ void translateAnimationHandler(int param)
 		if (botFourOne_Z >= endingZ)
 		{
 			botFourOne_active = false;
-			stopped++;
+			fourStopped++;
 		}
 	}
 	if (botFourTwo_active)
@@ -2034,12 +2027,14 @@ void translateAnimationHandler(int param)
 		if (botFourTwo_Z >= endingZ)
 		{
 			botFourTwo_active = false;
-			stopped++;
+			fourStopped++;
 		}
 	}
 
 	glutPostRedisplay();
 	//If not all at end of line, continue
-	if (stopped != 4)
+	if (threeStopped == 2)
+		{ botThree_walkCycle = false; }
+	if ((threeStopped != 2) && (fourStopped != 2))
 		{ glutTimerFunc(10, translateAnimationHandler, 0); }
 }
