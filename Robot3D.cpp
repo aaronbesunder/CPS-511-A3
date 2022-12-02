@@ -93,6 +93,7 @@ float botThree_cannonAngle = 0.0;
 
 //Control walk rotation
 bool botThree_walkCycle = false;
+bool botThree_collapseOngoing = false;
 float botThree_walkArr[][2] = {
 	{45.0, 270.0},
 	{46.0, 271.0},
@@ -236,20 +237,21 @@ float botThree_walkArr[][2] = {
 };
 
 // Functions
-void botThree_drawRobot(bool, int);
+void botThree_drawRobot(int);
 
 void botThree_drawBody();
 void botThree_drawCannons();
 
-void botThree_drawLeg(bool, int, int, int, int);
+void botThree_drawLeg(int, int, int, int);
 void botThree_drawHipJoint(int);
 void botThree_drawUpperLeg();
 void botThree_drawKneeJoint(int);
 void botThree_drawLowerLeg();
-void botThree_drawFoot(int, bool, int, int);
+void botThree_drawFoot(int, int, int);
 
-void botThree_cannonAnimationHandler(int param);
-void botThree_walkAnimationHandler(int param);
+void botThree_cannonAnimationHandler(int);
+void botThree_walkAnimationHandler(int);
+void botThree_collapseAnimationHandler(int);
 
 // Lighting and Shading
 GLfloat botThree_robotBody_mat_ambient[] = { 0.3f, 0.15f, 0.3f, 1.0f };
@@ -271,7 +273,7 @@ GLfloat botThree_robotLeg_mat_shininess[] = { 10.0F };
 // --- Bot Instances ---
 // ---------------------
 
-GLfloat botThree_Y = -8.5;
+GLfloat botThree_startingY = -8.5;
 GLfloat botFour_Y = -4;
 
 GLfloat startingZ = -75;
@@ -280,6 +282,7 @@ GLfloat endingZ = 0;
 // BotThree: One
 bool botThreeOne_active = true;
 GLfloat botThreeOne_X = -10;
+GLfloat botThreeOne_Y = botThree_startingY;
 GLfloat botThreeOne_Z = startingZ;
 float botThreeOne_rightHipAngle = 45.0;
 float botThreeOne_leftHipAngle = 45.0;
@@ -291,6 +294,7 @@ int botThreeOne_leftWalkIndex = 67;
 // BotThree: Two
 bool botThreeTwo_active = true;
 GLfloat botThreeTwo_X = 30;
+GLfloat botThreeTwo_Y = botThree_startingY;
 GLfloat botThreeTwo_Z = startingZ;
 float botThreeTwo_rightHipAngle = 45.0;
 float botThreeTwo_leftHipAngle = 45.0;
@@ -513,22 +517,20 @@ void display(void)
 
 	// Bot Three: One
 	glPushMatrix();
-		glTranslatef(botThreeOne_X, botThree_Y, botThreeOne_Z);
-		botThree_drawRobot(botThreeOne_active, 1);
+		glTranslatef(botThreeOne_X, botThreeOne_Y, botThreeOne_Z);
+		botThree_drawRobot(1);
 
 		if (help == true) 
-		{ drawCoordinates(); }
+			{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Bot Three: Two
 	glPushMatrix();
-	glTranslatef(botThreeTwo_X, botThree_Y, botThreeTwo_Z);
-	botThree_drawRobot(botThreeTwo_active, 2);
+		glTranslatef(botThreeTwo_X, botThreeTwo_Y, botThreeTwo_Z);
+		botThree_drawRobot(2);
 
-	if (help == true)
-	{
-		drawCoordinates();
-	}
+		if (help == true)
+			{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Bot Four: One
@@ -537,18 +539,16 @@ void display(void)
 		botFour_drawRobot();
 
 		if (help == true) 
-		{ drawCoordinates(); }
+			{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Bot Four: Two
 	glPushMatrix();
-	glTranslatef(botFourTwo_X, botFour_Y, botFourTwo_Z);
-	botFour_drawRobot();
+		glTranslatef(botFourTwo_X, botFour_Y, botFourTwo_Z);
+		botFour_drawRobot();
 
-	if (help == true)
-	{
-		drawCoordinates();
-	}
+		if (help == true)
+			{ drawCoordinates(); }
 	glPopMatrix();
 
 	// Help
@@ -946,7 +946,7 @@ void botFour_takeStep() {
 // --- Bot Three ---
 // -----------------
 
-void botThree_drawRobot(bool active, int botNum)
+void botThree_drawRobot(int botNum)
 {
 	// Bot Number
 	float leftHipAngle = 0;
@@ -973,7 +973,7 @@ void botThree_drawRobot(bool active, int botNum)
 		glRotatef(botThree_robotAngle, 0.0, 1.0, 0.0);
 
 		botThree_drawBody();
-		botThree_drawLeg(active, leftHipAngle, rightHipAngle, leftKneeAngle, rightKneeAngle);
+		botThree_drawLeg(leftHipAngle, rightHipAngle, leftKneeAngle, rightKneeAngle);
 
 	glPopMatrix();
 }
@@ -1142,7 +1142,7 @@ void botThree_drawCannons()
 	}
 }
 
-void botThree_drawLeg(bool active, int leftHipAngle, int rightHipAngle, int leftKneeAngle, int rightKneeAngle)
+void botThree_drawLeg(int leftHipAngle, int rightHipAngle, int leftKneeAngle, int rightKneeAngle)
 {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botThree_robotJoints_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botThree_robotJoints_mat_specular);
@@ -1167,15 +1167,11 @@ void botThree_drawLeg(bool active, int leftHipAngle, int rightHipAngle, int left
 			);
 			
 			//Rotate Hip Joint
-			if (active)
-			{
-				if (legNum == -1)
-					{ glRotatef(rightHipAngle, 1.0, 0.0, 0.0);	}
-				else if (legNum == 1)
-					{ glRotatef(leftHipAngle, 1.0, 0.0, 0.0);	}
-			}
-			else
-				{ glRotatef(45, 1.0, 0.0, 0.0); }
+			if (legNum == -1)
+				{ glRotatef(rightHipAngle, 1.0, 0.0, 0.0);	}
+			else if (legNum == 1)
+				{ glRotatef(leftHipAngle, 1.0, 0.0, 0.0);	}
+
 
 			// Hip Joint
 			botThree_drawHipJoint(legNum);
@@ -1207,15 +1203,10 @@ void botThree_drawLeg(bool active, int leftHipAngle, int rightHipAngle, int left
 
 						//Rotate Knee Joint
 						glTranslatef(0.05 * botThree_bodyDepth, botThree_lowerLegHeight, 0.0);
-						if (active)
-						{
-							if (legNum == -1)
-								{ glRotatef(rightKneeAngle, 1.0, 0.0, 0.0); }
-							else if (legNum == 1)
-								{ glRotatef(leftKneeAngle, 1.0, 0.0, 0.0); }
-						}
-						else
-							{ glRotatef(270, 1.0, 0.0, 0.0); }
+						if (legNum == -1)
+							{ glRotatef(rightKneeAngle, 1.0, 0.0, 0.0); }
+						else if (legNum == 1)
+							{ glRotatef(leftKneeAngle, 1.0, 0.0, 0.0); }
 						glTranslatef(-0.05 * botThree_bodyDepth, -botThree_lowerLegHeight, 0.0);
 
 						//Draw Lower Leg
@@ -1223,9 +1214,9 @@ void botThree_drawLeg(bool active, int leftHipAngle, int rightHipAngle, int left
 
 						//Foot
 						if (legNum == -1)
-							{ botThree_drawFoot(legNum, active, rightHipAngle, rightKneeAngle); }
+							{ botThree_drawFoot(legNum, rightHipAngle, rightKneeAngle); }
 						else if (legNum == 1)
-							{ botThree_drawFoot(legNum, active, leftHipAngle, leftKneeAngle); }
+							{ botThree_drawFoot(legNum, leftHipAngle, leftKneeAngle); }
 
 					glPopMatrix();//Lower Leg
 
@@ -1375,7 +1366,7 @@ void botThree_drawLowerLeg()
 	glPopMatrix();//Create Lower Leg
 }
 
-void botThree_drawFoot(int legNum, bool active, int hipAngle, int kneeAngle)
+void botThree_drawFoot(int legNum, int hipAngle, int kneeAngle)
 {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botThree_robotJoints_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botThree_robotJoints_mat_specular);
@@ -1387,19 +1378,14 @@ void botThree_drawFoot(int legNum, bool active, int hipAngle, int kneeAngle)
 		// Position foot with respect to parent lower leg
 		glTranslatef(0.0, botThree_legDiameter * -0.5, 0.0);
 
-		if (active)
-		{
-			//Get Foot Angle
-			float footAngle = hipAngle + kneeAngle;
-			while (footAngle > 360)
-				{ footAngle -= 360; }
-				
-			//Unrotate Foot Angle if clip
-			if (footAngle > 180)
-				{ glRotatef(-footAngle, 1.0, 0.0, 0.0); }	
-		}
-		else
-			{ glRotatef(-315, 1.0, 0.0, 0.0); }
+		//Get Foot Angle
+		float footAngle = hipAngle + kneeAngle;
+		while (footAngle > 360)
+			{ footAngle -= 360; }
+			
+		//Unrotate Foot Angle if clip
+		if (footAngle > 180)
+			{ glRotatef(-footAngle, 1.0, 0.0, 0.0); }	
 
 		//Ball of foot
 		glPushMatrix();
@@ -1794,12 +1780,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftHipAngle -= 360.0;
 		}
 		// Bot Three
-		botThreeTwo_rightHipAngle += rotateSpeed;
-		botThreeTwo_leftHipAngle += rotateSpeed;
-		if (botThreeTwo_rightHipAngle >= 360)
+		botThreeOne_rightHipAngle += rotateSpeed;
+		botThreeOne_leftHipAngle += rotateSpeed;
+		if (botThreeOne_rightHipAngle >= 360)
 		{ 
-			botThreeTwo_rightHipAngle -= 360.0;
-			botThreeTwo_leftHipAngle -= 360.0;
+			botThreeOne_rightHipAngle -= 360.0;
+			botThreeOne_leftHipAngle -= 360.0;
 		}
 		break;
 
@@ -1813,12 +1799,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftHipAngle += 360.0;
 		}
 		// Bot Three
-		botThreeTwo_rightHipAngle -= rotateSpeed;
-		botThreeTwo_leftHipAngle -= rotateSpeed;
-		if (botThreeTwo_rightHipAngle < 0)
+		botThreeOne_rightHipAngle -= rotateSpeed;
+		botThreeOne_leftHipAngle -= rotateSpeed;
+		if (botThreeOne_rightHipAngle < 0)
 		{
-			botThreeTwo_rightHipAngle += 360.0;
-			botThreeTwo_leftHipAngle += 360.0;
+			botThreeOne_rightHipAngle += 360.0;
+			botThreeOne_leftHipAngle += 360.0;
 		}
 		break;
 
@@ -1832,12 +1818,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftKneeAngle -= 360.0;
 		}
 		// Bot Three
-		botThreeTwo_rightKneeAngle += rotateSpeed;
-		botThreeTwo_leftKneeAngle += rotateSpeed;
-		if (botThreeTwo_rightKneeAngle >= 360)
+		botThreeOne_rightKneeAngle += rotateSpeed;
+		botThreeOne_leftKneeAngle += rotateSpeed;
+		if (botThreeOne_rightKneeAngle >= 360)
 		{
-			botThreeTwo_rightKneeAngle -= 360.0;
-			botThreeTwo_leftKneeAngle -= 360.0;
+			botThreeOne_rightKneeAngle -= 360.0;
+			botThreeOne_leftKneeAngle -= 360.0;
 		}
 		break;
 
@@ -1852,12 +1838,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFour_leftKneeAngle += 360.0;
 		}
 		// Bot Three
-		botThreeTwo_rightKneeAngle -= rotateSpeed;
-		botThreeTwo_leftKneeAngle -= rotateSpeed;
-		if (botThreeTwo_rightKneeAngle < 0)
+		botThreeOne_rightKneeAngle -= rotateSpeed;
+		botThreeOne_leftKneeAngle -= rotateSpeed;
+		if (botThreeOne_rightKneeAngle < 0)
 		{
-			botThreeTwo_rightKneeAngle += 360.0;
-			botThreeTwo_leftKneeAngle += 360.0;
+			botThreeOne_rightKneeAngle += 360.0;
+			botThreeOne_leftKneeAngle += 360.0;
 		}
 		break;
 
@@ -1958,8 +1944,10 @@ void keyboard(unsigned char key, int x, int y)
 		rotateSpeed = 2.0;
 
 		botThreeOne_active = true;
+		botThreeOne_Y = botThree_startingY;
 		botThreeOne_Z = startingZ;
 		botThreeTwo_active = true;
+		botThreeTwo_Y = botThree_startingY;
 		botThreeTwo_Z = startingZ;
 
 		botFourOne_active = true;
@@ -2059,35 +2047,92 @@ void translateAnimationHandler(int param)
 	
 	// Update Z
 	double speed = 0.2;
+	bool collapse = false;
 
 	if (botThreeOne_active)
 	{
 		botThreeOne_Z += speed;
 		if (botThreeOne_Z >= endingZ)
-			{ botThreeOne_active = false; }
+			{ botThreeOne_active = false; collapse = true; }
 	}
 	if (botThreeTwo_active)
 	{
 		botThreeTwo_Z += speed;
 		if (botThreeTwo_Z >= endingZ)
-			{ botThreeTwo_active = false;	}
+			{ botThreeTwo_active = false; collapse = true; }
 	}
 
 	if (botFourOne_active)
 	{
 		botFourOne_Z += speed;
 		if (botFourOne_Z >= endingZ)
-			{ botFourOne_active = false; }
+			{ botFourOne_active = false; collapse = true; }
 	}
 	if (botFourTwo_active)
 	{
 		botFourTwo_Z += speed;
 		if (botFourTwo_Z >= endingZ)
-			{ botFourTwo_active = false; }
+			{ botFourTwo_active = false; collapse = true; }
 	}
 
 	glutPostRedisplay();
 	//If not all at end of line, continue
 	if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
 		{ glutTimerFunc(10, translateAnimationHandler, 0); }
+
+	//If becomes inactive, collapse
+	if ((collapse) && (!botThree_collapseOngoing))
+		{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true;}
+}
+
+void botThree_collapseAnimationHandler(int param)
+{
+	if (botThree_collapseOngoing)
+	{
+		bool done = true;
+		float yCollapseSpeed = -0.07;
+		float yEnd = -14;
+
+		// BotThree: One
+		if (!botThreeOne_active)
+		{
+			// Y
+			if (botThreeOne_Y > yEnd)
+				{ botThreeOne_Y += yCollapseSpeed; done = false; }
+
+			// Hip
+			if (botThreeOne_leftHipAngle > 75)
+				{ botThreeOne_leftHipAngle--; done = false; }
+			else if (botThreeOne_leftHipAngle < 75)
+				{ botThreeOne_leftHipAngle++; done = false; }
+
+			if (botThreeOne_rightHipAngle > 75)
+				{ botThreeOne_rightHipAngle--; done = false; }
+			else if (botThreeOne_rightHipAngle < 75)
+				{ botThreeOne_rightHipAngle++; done = false; }
+
+			// Knee
+			if (botThreeOne_leftKneeAngle > 210)
+				{ botThreeOne_leftKneeAngle--; done = false; }
+			else if (botThreeOne_leftKneeAngle < 210)
+				{ botThreeOne_leftKneeAngle++; done = false; }
+
+			if (botThreeOne_rightKneeAngle > 210)
+				{ botThreeOne_rightKneeAngle--; done = false; }
+			else if (botThreeOne_rightKneeAngle < 210)
+				{ botThreeOne_rightKneeAngle++; done = false; }
+		}
+
+		// BotThree: Two
+		if (!botThreeTwo_active)
+		{
+		}
+
+		glutPostRedisplay();
+		//If not all at end of line, continue
+		if (!done)
+			{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); }
+		else
+		{ botThree_collapseOngoing = false; }
+	}
 }
