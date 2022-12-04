@@ -13,6 +13,9 @@
 #include <GL\freeglut_ext.h>
 #include <sstream>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <string.h>
 
 // ----------------
 // --- Bot Four ---
@@ -65,6 +68,15 @@ void botFour_drawRobot();
 void botFour_drawBody();
 void botFour_drawLeftLeg();
 void botFour_drawRightLeg();
+
+unsigned int varraySize;
+unsigned int normalSize;
+unsigned int indexSize;
+void vboInit();
+bool success = false;
+GLdouble* vertices;
+GLdouble* normals;
+GLuint* quadindice;
 
 // Lighting/shading and material properties for robot
 GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
@@ -368,6 +380,7 @@ void generateBuffers();
 void deleteBuffers();
 void drawDefensiveCannon();
 void exportCannonMesh();
+void drawQuads();
 
 // ------------
 // --- Help ---
@@ -580,6 +593,7 @@ void display(void)
 	glPopMatrix();
 
 	// Defensive Cannon
+		
 	drawDefensiveCannon();
 
 	// Help
@@ -591,8 +605,103 @@ void display(void)
 	groundMesh->DrawMesh(meshSize);
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslatef(0.0, -5.0, 35);
+	glRotatef(-90, 1, 0, 0);
+	vboInit();
+	drawQuads();
+	glPopMatrix();
 	glutSwapBuffers();   // Double buffering, swap buffers
 }
+
+
+//Cannon
+
+void vboInit() {//sets up the vbo by reading from input txt
+	varraySize = 1584;//sets up size of vertex array
+	normalSize = 1584;//sets up size of normal array
+	varraySize *= sizeof(GLdouble);
+	normalSize *= sizeof(GLdouble);
+	indexSize = 2048;//sets up size of quad indices
+	vertices = (GLdouble*)malloc(varraySize * sizeof(GLdouble));//allocate data for vertices, normals ,quad indices
+	normals = (GLdouble*)malloc(normalSize * sizeof(GLdouble));
+	quadindice = (GLuint*)malloc(indexSize * sizeof(GLuint));
+
+	std::ifstream MyReadFile("output.txt");//read from output txt file
+	std::string inputdata;
+	std::string data;
+	while (std::getline(MyReadFile, inputdata)) {//get the data as a string of values seperated by spaces
+		std::stringstream stream;
+		stream << inputdata;
+		data += stream.str();
+		data += " ";
+
+	}
+	int vertexCounter = 0;
+	int normalCounter = 0;
+	int quadCounter = 0;
+	std::istringstream copy(data);
+	std::string s;
+	while (std::getline(copy, s, ' ')) {//go through the string and assign all the vertices normals and quads to their respective arrays
+		if (vertexCounter < 1584) {
+			vertices[vertexCounter] = std::stod(s.c_str());//convert string to double
+			vertexCounter++;
+		}
+		else if (normalCounter < 1584) {
+			normals[normalCounter] = std::stod(s.c_str());//convert string to double
+			normalCounter++;
+		}
+		else {
+			quadindice[quadCounter] = std::stoi(s.c_str());//convert string to int 
+			quadCounter++;
+		}
+	}
+}
+
+
+
+
+
+void drawQuads()
+{
+
+
+
+
+
+	unsigned int vid;
+	unsigned int iid;
+	glGenBuffers(1, &vid);
+	glGenBuffers(1, &iid);
+	glBindBuffer(GL_ARRAY_BUFFER, vid);
+	glBufferData(GL_ARRAY_BUFFER, varraySize + normalSize, vertices, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, varraySize, vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, varraySize, normalSize, normals);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, iid);
+	glBufferData(GL_ARRAY_BUFFER, indexSize * sizeof(GLuint), quadindice, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, vid);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iid);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
+	unsigned int normalOffset = varraySize;
+	glVertexPointer(3, GL_DOUBLE, 0, (void*)0);
+	glNormalPointer(GL_DOUBLE, 0, (void*)normalOffset);
+	glDrawElements(GL_QUADS, indexSize, GL_UNSIGNED_INT, (void*)0);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
+
+}
+
 
 // ----------------
 // --- Bot Four ---
@@ -1678,7 +1787,7 @@ void exportCannonMesh()
 	fopen_s(&file, "Mesh/cannon.obj", "r");
 
 	if (NULL == file) {
-		printf("File can not be opened\n");
+		//printf("File can not be opened\n");
 		return;
 	}
 
