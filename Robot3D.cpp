@@ -1679,6 +1679,7 @@ void exportCannonMesh()
 
 	if (NULL == file) {
 		printf("File can not be opened\n");
+		return;
 	}
 
 	float x, y, z;
