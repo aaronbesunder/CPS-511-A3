@@ -80,7 +80,8 @@ bool botFour_reverse = false;
 bool botFour_firstcheck = false;
 bool botFour_stopmovingupper = false;
 bool botFour_gunStop = false;
-bool collapseStop = false;
+bool collapseStop1 = false;
+bool collapseStop2 = false;
 unsigned int botCollapseCount = 0;
 
 // Functions
@@ -393,10 +394,10 @@ float objy = 0;
 unsigned int cannon_vertexVboID;
 unsigned int cannon_normalVboID;
 unsigned int cannon_indexVboID;
-
 GLdouble* cannon_vertexPositionVao;
 GLdouble* cannon_vertexNormalVao;
 GLuint* cannon_quadIndicesVao;
+static GLuint cannontexture;
 
 // Set up lighting/shading and material properties for cannon
 GLfloat cannonMat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -1795,14 +1796,21 @@ void generateBuffers()
 	GLenum err = glewInit();
 	if (GLEW_OK != err) {
 		fprintf(stderr, "Glew error: %s\n", glewGetErrorString(err));
-	}
+	}  
+	
+
 
 	//Position
 	glGenBuffers(1, &cannon_vertexVboID);
 	glBindBuffer(GL_ARRAY_BUFFER, cannon_vertexVboID);
 	glBufferData(GL_ARRAY_BUFFER, cannon_vertexSize, cannon_vertexPositionVao, GL_STATIC_DRAW);
 	glVertexPointer(3, GL_DOUBLE, 0, NULL);
+	glEnable(GL_TEXTURE_2D);	
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//Normal
@@ -2380,6 +2388,7 @@ void translateAnimationHandler(int param)
 	// Update Z
 	double speed = 0.2;
 	bool collapse = false;
+	bool collapse2 = false;
 
 	if (botThreeOne_active)
 	{
@@ -2407,7 +2416,7 @@ void translateAnimationHandler(int param)
 		botFourTwo_Z += speed;
 		if (botFourTwo_Z >= endingZ)
 		{
-			botFourTwo_active = false; collapse = true; botFour_stop = true; 
+			botFourTwo_active = false; collapse = true; botFour_stop = true; collapse2 = true;
 		}
 	}
 
@@ -2419,8 +2428,12 @@ void translateAnimationHandler(int param)
 	//If becomes inactive, collapse
 	if ((collapse) && (!botThree_collapseOngoing))
 	{
-		glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true; glutIdleFunc(botFourOne_collapse); glutIdleFunc(botFourTwo_collapse);
+		glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true;  
 		
+	}
+	if (collapse2) {
+		glutIdleFunc(botFourOne_collapse);
+		//glutIdleFunc(botFourTwo_collapse);
 	}
 }
 
@@ -2503,7 +2516,7 @@ void botThree_collapseAnimationHandler(int param)
 	}
 }
 void botFourOne_collapse() {
-	if (!collapseStop) {
+	if (!collapseStop1) {
 
 		botFourOne_robotAngle += 1;
 		if (botFourOne_robotAngle > 360) {
@@ -2516,20 +2529,19 @@ void botFourOne_collapse() {
 			botFourOne_footWidth = 0 * botFourOne_lowerLegWidth;
 			botFourOne_footDepth = 0 * botFourOne_lowerLegWidth;
 			botFourOne_bar = 0;
-			collapseStop = true;
+			collapseStop1 = true;
 		}
 	}
-	if (collapseStop) {
+	if (collapseStop1) {
 		if (botFourOne_Y >= -20) {
 			botFourOne_Y -= 0.5;
 		}
 	}
-
-	glutPostRedisplay();
+	botFourTwo_collapse();
 
 }
 void botFourTwo_collapse() {
-	if (!collapseStop) {
+	if (!collapseStop2) {
 
 		botFourTwo_robotAngle += 1;
 		if (botFourTwo_robotAngle > 360) {
@@ -2542,10 +2554,10 @@ void botFourTwo_collapse() {
 			botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
 			botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
 			botFourTwo_bar = 0;
-			collapseStop = true;
+			collapseStop2 = true;
 		}
 	}
-	if (collapseStop) {
+	if (collapseStop2) {
 		if (botFourTwo_Y >= -15) {
 			botFourTwo_Y -= 0.5;
 		}
