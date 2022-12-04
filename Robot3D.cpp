@@ -388,7 +388,8 @@ int cannon_vertexLen = 0;
 int cannon_vertexSize = 0;
 int cannon_quadLen = 0;
 int cannon_quadSize = 0;
-
+float objx = 0;
+float objy = 0;
 unsigned int cannon_vertexVboID;
 unsigned int cannon_normalVboID;
 unsigned int cannon_indexVboID;
@@ -488,7 +489,6 @@ int main(int argc, char **argv)
 	glutMotionFunc(mouseMotionHandler);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(functionKeys);
-
 	// Start event loop, never returns
 	glutMainLoop();
 
@@ -589,8 +589,9 @@ void display(void)
 	drawRobot(4);
 
 	// Defensive Cannon
+	
 	drawDefensiveCannon();
-
+	
 	// Help
 	drawHelp();
 
@@ -1906,7 +1907,12 @@ void drawDefensiveCannon()
 		//Draw elements
 		generateBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
+		glPushMatrix();
+		glTranslatef(0, 0, -20);
+		glRotatef(objx, 0.0, 0.0, 1.0);
+		glTranslatef(0, 0, 20);
 		glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
+		glPopMatrix();
 		deleteBuffers();
 	glPopMatrix();
 }
@@ -2341,10 +2347,12 @@ void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
-		;
+		objx = xMouse;
+		objy = -yMouse;
+		glutPostRedisplay();
 	}
 
-	glutPostRedisplay();   // Trigger a window redisplay
+	   // Trigger a window redisplay
 }
 
 // -----------------
@@ -2546,3 +2554,4 @@ void botFourTwo_collapse() {
 	glutPostRedisplay();
 
 }
+
