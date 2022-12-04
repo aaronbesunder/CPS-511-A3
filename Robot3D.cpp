@@ -43,15 +43,18 @@ float botFour_gunAngle = -90.0;
 float botFour_leftHipAngle = 0.0;
 float botFour_leftLegBack = -60;
 float botFour_leftleginit = 8.0;
+float botFour_rightleginit = 8.0;
 float botFour_leftKneeAngle = 0.0;
 float botFour_leftFootAngle = 0.0;
 float botFour_rightHipAngle = 0.0;
+float botFour_rightLegBack = -60;
 float botFour_rightKneeAngle = 0.0;
 float botFour_rightFootAngle = 0.0;
 
 // Animation
 bool botFour_start = false;
 bool botFour_stop = false;
+bool botFourR_stop = false;
 bool botFour_reverse = false;
 bool botFour_firstcheck = false;
 bool botFour_stopmovingupper = false;
@@ -62,12 +65,18 @@ void botFour_animateUpperLegUp();
 void botFour_animateLowerLegUp();
 void botFour_animateUpperLegDown();
 void botFour_animateLowerLegDown();
+void botFour_animateUpperRightLegUp();
+void botFour_animateLowerRightLegUp();
+void botFour_animateUpperRightLegDown();
+void botFour_animateLowerRightLegDown();
 void botFour_gunHandler(int param);
 void botFour_takeStep();
+void botFour_takeRightStep();
 void botFour_drawRobot();
 void botFour_drawBody();
 void botFour_drawLeftLeg();
 void botFour_drawRightLeg();
+bool walkcheck = false;
 
 // Lighting/shading and material properties for robot
 GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
@@ -878,20 +887,43 @@ void botFour_animateUpperLegUp()
 	if (!botFour_stop)
 	{
 		if (botFour_leftHipAngle > -60) {
-			botFour_leftHipAngle -= 0.1;
+			botFour_leftHipAngle -= 0.9;
 			//printf("%lf\n", botFour_leftHipAngle);
 			glutPostRedisplay();
 		}
 	}
 }
-
+void botFour_animateUpperRightLegUp()
+{
+	if (!botFourR_stop)
+	{
+		if (botFour_rightHipAngle > -60) {
+			botFour_rightHipAngle -= 0.9;
+			//printf("%lf\n", botFour_leftHipAngle);
+			glutPostRedisplay();
+		}
+	}
+}
 // move lower leg up
 void botFour_animateLowerLegUp()
 {
 	if (!botFour_stop)
 	{
 		if (botFour_leftKneeAngle <60) {
-			botFour_leftKneeAngle += 0.05;
+			botFour_leftKneeAngle += 0.9;
+			//printf("%lf\n", (botFour_leftKneeAngle+botFour_leftleginit));
+			glutPostRedisplay();
+			botFour_reverse = true;
+			botFour_stopmovingupper = true;
+		}
+	}
+}
+void botFour_animateLowerRightLegUp()
+{
+	if (!botFourR_stop)
+	{
+		if (botFour_rightKneeAngle < 60) {
+			botFour_rightKneeAngle += 0.9;
 			//printf("%lf\n", (botFour_leftKneeAngle+botFour_leftleginit));
 			glutPostRedisplay();
 			botFour_reverse = true;
@@ -906,7 +938,19 @@ void botFour_animateUpperLegDown()
 	if (!botFour_stop)
 	{
 		if (botFour_reverse==true && botFour_leftHipAngle<=0) {
-			botFour_leftHipAngle += 0.1;
+			botFour_leftHipAngle += 0.9;
+			//printf("%lf\n", botFour_leftHipAngle);
+			glutPostRedisplay();
+			botFour_firstcheck = true;
+		}
+	}
+}
+void botFour_animateUpperRightLegDown()
+{
+	if (!botFourR_stop)
+	{
+		if (botFour_reverse == true && botFour_rightHipAngle <= 0) {
+			botFour_rightHipAngle += 0.9;
 			//printf("%lf\n", botFour_leftHipAngle);
 			glutPostRedisplay();
 			botFour_firstcheck = true;
@@ -919,7 +963,18 @@ void botFour_animateLowerLegDown()
 	if (!botFour_stop)
 	{
 		if (botFour_reverse == true && botFour_leftKneeAngle >= (botFour_leftleginit)) {
-			botFour_leftKneeAngle -= 0.05;
+			botFour_leftKneeAngle -= 0.9;
+			//printf("%lf\n", botFour_leftKneeAngle);
+			glutPostRedisplay();
+		}
+	}
+}
+void botFour_animateLowerRightLegDown()
+{
+	if (!botFourR_stop)
+	{
+		if (botFour_reverse == true && botFour_rightKneeAngle >= (botFour_rightleginit)) {
+			botFour_rightKneeAngle -= 0.9;
 			//printf("%lf\n", botFour_leftKneeAngle);
 			glutPostRedisplay();
 		}
@@ -955,6 +1010,31 @@ void botFour_takeStep() {
 	}
 	else if (botFour_reverse == true && botFour_firstcheck==true && botFour_leftKneeAngle >= botFour_leftleginit) {
 		botFour_animateLowerLegDown();
+		botFour_start = false;
+		glutIdleFunc(botFour_takeRightStep);
+	}
+}
+void botFour_takeRightStep() {
+
+	if (botFour_start == false) {
+		botFour_rightHipAngle = 0;
+		botFour_rightKneeAngle = botFour_rightleginit;
+		botFour_start = true;
+		botFour_stopmovingupper = false;
+	}
+	else if (botFour_rightHipAngle >= -60 && botFour_rightKneeAngle < 60 && botFour_stopmovingupper == false) {
+		botFour_animateUpperRightLegUp();
+	}
+	else if (botFour_rightHipAngle < -60 && botFour_rightKneeAngle < 60) {
+		botFour_animateLowerRightLegUp();
+	}
+	else if (botFour_reverse == true && botFour_rightHipAngle <= 0) {
+		botFour_animateUpperRightLegDown();
+	}
+	else if (botFour_reverse == true && botFour_firstcheck == true && botFour_rightKneeAngle >= botFour_rightleginit) {
+		botFour_animateLowerRightLegDown();
+		botFour_start = false;
+		glutIdleFunc(botFour_takeStep);
 	}
 }
 
@@ -2040,6 +2120,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'W':
 		// Bot Four
 		botFour_stop = true;
+		botFourR_stop = true;
 		// Bot Three
 		botThree_walkCycle = false;
 		break;
@@ -2057,6 +2138,7 @@ void keyboard(unsigned char key, int x, int y)
 
 		botFour_start = false;
 		botFour_stop = false;
+		botFourR_stop = false;
 		botFour_reverse = false;
 		botFour_firstcheck = false;
 		botFour_stopmovingupper = false;
@@ -2176,6 +2258,7 @@ void mouseMotionHandler(int xMouse, int yMouse)
 
 void translateAnimationHandler(int param)
 {
+	
 	// Walk Cycle: Bot Three
 	if (botThree_walkCycle == false)
 	{
@@ -2184,8 +2267,12 @@ void translateAnimationHandler(int param)
 	}
 
 	// Walk Cycle: Bot Four
-	glutIdleFunc(botFour_takeStep);
-	botFour_start = false;
+	if (walkcheck == false) {
+		glutIdleFunc(botFour_takeStep);
+		walkcheck = true;
+	}
+	
+	
 	
 	// Update Z
 	double speed = 0.2;
@@ -2208,13 +2295,17 @@ void translateAnimationHandler(int param)
 	{
 		botFourOne_Z += speed;
 		if (botFourOne_Z >= endingZ)
-			{ botFourOne_active = false; collapse = true; }
+		{
+			botFourOne_active = false; collapse = true; botFour_stop = true; botFourR_stop = true;
+		}
 	}
 	if (botFourTwo_active)
 	{
 		botFourTwo_Z += speed;
 		if (botFourTwo_Z >= endingZ)
-			{ botFourTwo_active = false; collapse = true; }
+		{
+			botFourTwo_active = false; collapse = true; botFour_stop = true; botFourR_stop = true;
+		}
 	}
 
 	glutPostRedisplay();
