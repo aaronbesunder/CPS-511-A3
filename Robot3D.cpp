@@ -69,15 +69,6 @@ void botFour_drawBody();
 void botFour_drawLeftLeg();
 void botFour_drawRightLeg();
 
-unsigned int varraySize;
-unsigned int normalSize;
-unsigned int indexSize;
-void vboInit();
-bool success = false;
-GLdouble* vertices;
-GLdouble* normals;
-GLuint* quadindice;
-
 // Lighting/shading and material properties for robot
 GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat botFour_robotBody_mat_specular[] = { 0.45f,0.55f,0.45f,1.0f };
@@ -367,20 +358,19 @@ unsigned int cannon_indexVboID;
 
 GLdouble* cannon_vertexPositionVao;
 GLdouble* cannon_vertexNormalVao;
-GLint* cannon_quadIndicesVao;
+GLuint* cannon_quadIndicesVao;
 
 // Set up lighting/shading and material properties for cannon
 GLfloat cannonMat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
 GLfloat cannonMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
-GLfloat cannonMat_diffuse[] = { 0.1, 0.35, 0.1, 1.0 };
-GLfloat cannonMat_shininess[] = { 10.0 };
+GLfloat cannonMat_diffuse[] = { 0.2f, 0.2f, 0.2f, 0.2f };
+GLfloat cannonMat_shininess[] = { 5.0F };
 
 //Functions
 void generateBuffers();
 void deleteBuffers();
 void drawDefensiveCannon();
 void exportCannonMesh();
-void drawQuads();
 
 // ------------
 // --- Help ---
@@ -402,11 +392,11 @@ GLdouble nearPlane = 0.10;	// 0.2		0.10
 GLdouble farPlane = 150.0;	// 40.0		100.0
 
 GLdouble eyeX = 0;
-GLdouble eyeY = 6;
+GLdouble eyeY = -5;
 GLdouble eyeZ = 50;
 
 GLdouble centerX = 0;
-GLdouble centerY = -10.0;
+GLdouble centerY = -20.0;
 GLdouble centerZ = 0;
 
 // -------------------------------------------------------
@@ -593,7 +583,6 @@ void display(void)
 	glPopMatrix();
 
 	// Defensive Cannon
-		
 	drawDefensiveCannon();
 
 	// Help
@@ -605,103 +594,8 @@ void display(void)
 	groundMesh->DrawMesh(meshSize);
 	glPopMatrix();
 
-	glPushMatrix();
-	glTranslatef(0.0, -5.0, 35);
-	glRotatef(-90, 1, 0, 0);
-	vboInit();
-	drawQuads();
-	glPopMatrix();
 	glutSwapBuffers();   // Double buffering, swap buffers
 }
-
-
-//Cannon
-
-void vboInit() {//sets up the vbo by reading from input txt
-	varraySize = 1584;//sets up size of vertex array
-	normalSize = 1584;//sets up size of normal array
-	varraySize *= sizeof(GLdouble);
-	normalSize *= sizeof(GLdouble);
-	indexSize = 2048;//sets up size of quad indices
-	vertices = (GLdouble*)malloc(varraySize * sizeof(GLdouble));//allocate data for vertices, normals ,quad indices
-	normals = (GLdouble*)malloc(normalSize * sizeof(GLdouble));
-	quadindice = (GLuint*)malloc(indexSize * sizeof(GLuint));
-
-	std::ifstream MyReadFile("output.txt");//read from output txt file
-	std::string inputdata;
-	std::string data;
-	while (std::getline(MyReadFile, inputdata)) {//get the data as a string of values seperated by spaces
-		std::stringstream stream;
-		stream << inputdata;
-		data += stream.str();
-		data += " ";
-
-	}
-	int vertexCounter = 0;
-	int normalCounter = 0;
-	int quadCounter = 0;
-	std::istringstream copy(data);
-	std::string s;
-	while (std::getline(copy, s, ' ')) {//go through the string and assign all the vertices normals and quads to their respective arrays
-		if (vertexCounter < 1584) {
-			vertices[vertexCounter] = std::stod(s.c_str());//convert string to double
-			vertexCounter++;
-		}
-		else if (normalCounter < 1584) {
-			normals[normalCounter] = std::stod(s.c_str());//convert string to double
-			normalCounter++;
-		}
-		else {
-			quadindice[quadCounter] = std::stoi(s.c_str());//convert string to int 
-			quadCounter++;
-		}
-	}
-}
-
-
-
-
-
-void drawQuads()
-{
-
-
-
-
-
-	unsigned int vid;
-	unsigned int iid;
-	glGenBuffers(1, &vid);
-	glGenBuffers(1, &iid);
-	glBindBuffer(GL_ARRAY_BUFFER, vid);
-	glBufferData(GL_ARRAY_BUFFER, varraySize + normalSize, vertices, GL_DYNAMIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, varraySize, vertices);
-	glBufferSubData(GL_ARRAY_BUFFER, varraySize, normalSize, normals);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, iid);
-	glBufferData(GL_ARRAY_BUFFER, indexSize * sizeof(GLuint), quadindice, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, vid);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iid);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-
-	unsigned int normalOffset = varraySize;
-	glVertexPointer(3, GL_DOUBLE, 0, (void*)0);
-	glNormalPointer(GL_DOUBLE, 0, (void*)normalOffset);
-	glDrawElements(GL_QUADS, indexSize, GL_UNSIGNED_INT, (void*)0);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-
-}
-
 
 // ----------------
 // --- Bot Four ---
@@ -1761,16 +1655,16 @@ void generateBuffers()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//Indices
+	// Indices
 	glGenBuffers(1, &cannon_indexVboID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, cannon_quadSize, cannon_quadIndicesVao, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, cannon_indexVboID);
+	glBufferData(GL_ARRAY_BUFFER, cannon_quadSize, cannon_quadIndicesVao, GL_DYNAMIC_DRAW);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void deleteBuffers()
 {
-	//Clean up
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1780,98 +1674,82 @@ void deleteBuffers()
 	glDeleteBuffers(1, &cannon_vertexVboID);
 }
 
-void exportCannonMesh()
-{
-	FILE* file;
-
-	fopen_s(&file, "Mesh/cannon.obj", "r");
-
-	if (NULL == file) {
-		//printf("File can not be opened\n");
-		return;
-	}
-
-	float x, y, z;
-	int v1, v2, v3, v4;
-	int subcurveNumCurvePoints;
-	int numberOfSides;
-	int cannon_verLen;
-	int cannon_quadLen;
-
-	//Array sizes
-	fscanf_s(file, "# subcurveNumCurvePoints: %d\n", &subcurveNumCurvePoints);
-	fscanf_s(file, "# numberOfSides: %d\n", &numberOfSides);
+void exportCannonMesh() {//sets up the vbo by reading from input txt
+	// Array sizes
+	int subcurveNumCurvePoints = 33;
+	int numberOfSides = 16;
 	int doubleSize = 8;
 	int intSize = 4;
 
-	cannon_verLen = subcurveNumCurvePoints * numberOfSides;
+	int cannon_verLen = subcurveNumCurvePoints * numberOfSides;
 	cannon_vertexLen = cannon_verLen * 3;
 	cannon_vertexSize = cannon_vertexLen * doubleSize;
 
-	cannon_quadLen = (subcurveNumCurvePoints - 1) * numberOfSides;
+	int cannon_quadLen = (subcurveNumCurvePoints - 1) * numberOfSides;
 	cannon_quadLen = cannon_quadLen * 4;
 	cannon_quadSize = cannon_quadLen * intSize;
 
-	//Malloc
-	if (!mallocCannonVbo)
-	{
-		cannon_vertexPositionVao = (GLdouble*)malloc(cannon_vertexSize);
-		cannon_vertexNormalVao = (GLdouble*)malloc(cannon_vertexSize);
-		cannon_quadIndicesVao = (GLint*)malloc(cannon_quadSize);
-		mallocCannonVbo = true;
-	}
+	// Malloc
+	cannon_vertexPositionVao = (GLdouble*)malloc(cannon_vertexSize);
+	cannon_vertexNormalVao = (GLdouble*)malloc(cannon_vertexSize);
+	cannon_quadIndicesVao = (GLuint*)malloc(cannon_quadSize);
 
-	//Vertex Position
-	int index = 0;
-	fscanf_s(file, "# Vertex Position\n");
-	while (fscanf_s(file, "v %f %f %f\n", &x, &y, &z) == 3)
-	{
-		cannon_vertexPositionVao[index + 0] = (GLdouble)x;
-		cannon_vertexPositionVao[index + 1] = (GLdouble)y;
-		cannon_vertexPositionVao[index + 2] = (GLdouble)z;
-		index = index + 3;
+	// Read File
+	std::ifstream MyReadFile("output.txt");//read from output txt file
+	std::string inputdata;
+	std::string data;
+	while (std::getline(MyReadFile, inputdata)) {//get the data as a string of values seperated by spaces
+		std::stringstream stream;
+		stream << inputdata;
+		data += stream.str();
+		data += " ";
 	}
+	MyReadFile.close();
 
-	//Vertex Normal
-	index = 0;
-	fscanf_s(file, "# Vertex Normal\n");
-	while (fscanf_s(file, "vn %f %f %f\n", &x, &y, &z) == 3)
-	{
-		cannon_vertexNormalVao[index + 0] = (GLdouble)x;
-		cannon_vertexNormalVao[index + 1] = (GLdouble)y;
-		cannon_vertexNormalVao[index + 2] = (GLdouble)z;
-		index = index + 3;
-	}
-
-	//Indices
-	index = 0;
-	fscanf_s(file, "# Indices\n");
-	while (fscanf_s(file, "f %d//%*d %d//%*d %d//%*d %d//%*d\n", &v1, &v2, &v3, &v4) == 4)
-	{
-		cannon_quadIndicesVao[index + 0] = (GLint)v1 - 1;
-		cannon_quadIndicesVao[index + 1] = (GLint)v2 - 1;
-		cannon_quadIndicesVao[index + 2] = (GLint)v3 - 1;
-		cannon_quadIndicesVao[index + 3] = (GLint)v4 - 1;
-		index = index + 4;
+	// Fill VAOs
+	int vertexCounter = 0;
+	int normalCounter = 0;
+	int quadCounter = 0;
+	std::istringstream copy(data);
+	std::string s;
+	while (std::getline(copy, s, ' ')) {//go through the string and assign all the vertices normals and quads to their respective arrays
+		if (vertexCounter < 1584) {
+			cannon_vertexPositionVao[vertexCounter] = std::stod(s.c_str());//convert string to double
+			vertexCounter++;
+		}
+		else if (normalCounter < 1584) {
+			cannon_vertexNormalVao[normalCounter] = std::stod(s.c_str());//convert string to double
+			normalCounter++;
+		}
+		else {
+			cannon_quadIndicesVao[quadCounter] = std::stoi(s.c_str());//convert string to int 
+			quadCounter++;
+		}
 	}
 }
 
 void drawDefensiveCannon()
 {
-	exportCannonMesh();
+	if (!mallocCannonVbo)
+	{
+		exportCannonMesh();
+		mallocCannonVbo = true;
+	}
 
 	glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, cannonMat_ambient);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, cannonMat_specular);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, cannonMat_diffuse);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
-
-		// Replace this code with VAO or VBO and drawElements()
+	
+		//Transformations
+		glTranslatef(0, -10.0, 45);
+		glRotatef(-70, 1, 0, 0);
 
 		//Draw elements
 		generateBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
-		glDrawElements(GL_QUADS, cannon_quadLen, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
 		deleteBuffers();
 	glPopMatrix();
 }
@@ -1897,7 +1775,7 @@ void drawLeftText()
 		//int x = -23;
 		//int y = 12;
 		int x = eyeZ * -0.65;
-		int y = eyeY * 2.5;
+		int y = -eyeY;
 
 		//Colours
 		float r = 255;
@@ -1925,7 +1803,7 @@ void drawRightText()
 		//int x = 15;
 		//int y = 12;
 		int x = eyeZ * 0.4;
-		int y = eyeY * 2.5;
+		int y = -eyeY;
 
 		//Ground Level
 		//int x = 0;
