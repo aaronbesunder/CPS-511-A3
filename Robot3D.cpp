@@ -332,15 +332,16 @@ int botThreeTwo_leftWalkIndex = 67;
 
 // BotFour: One
 bool botFourOne_active = true;
-GLfloat botFourOne_X = 10;
+GLfloat botFourOne_X = -30;
 GLfloat botFourOne_Z = startingZ;
 
 // BotFour: Two
 bool botFourTwo_active = true;
-GLfloat botFourTwo_X = -30;
+GLfloat botFourTwo_X = 10;
 GLfloat botFourTwo_Z = startingZ;
 
 void translateAnimationHandler(int);
+void drawRobot(int botNum);
 
 // --------------
 // --- Cannon ---
@@ -540,47 +541,16 @@ void display(void)
 	//Ground Level
 	//gluLookAt(0.0, -19.9, 30.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
 
-	// Draw Robot
-
-	// Apply modelling transformations M to move robot
-	// Current transformation matrix is set to IV, where I is identity matrix
-	// CTM = IV
-
-	// Bot Three: One
-	glPushMatrix();
-		glTranslatef(botThreeOne_X, botThreeOne_Y, botThreeOne_Z);
-		botThree_drawRobot(1);
-
-		if (help == true) 
-			{ drawCoordinates(); }
-	glPopMatrix();
-
-	// Bot Three: Two
-	glPushMatrix();
-		glTranslatef(botThreeTwo_X, botThreeTwo_Y, botThreeTwo_Z);
-		botThree_drawRobot(2);
-
-		if (help == true)
-			{ drawCoordinates(); }
-	glPopMatrix();
-
+	// Draw Robots
+	
 	// Bot Four: One
-	glPushMatrix();
-		glTranslatef(botFourOne_X, botFour_Y, botFourOne_Z);
-		botFour_drawRobot();
-
-		if (help == true) 
-			{ drawCoordinates(); }
-	glPopMatrix();
-
+	drawRobot(1);
+	// Bot Three: One
+	drawRobot(2);
 	// Bot Four: Two
-	glPushMatrix();
-		glTranslatef(botFourTwo_X, botFour_Y, botFourTwo_Z);
-		botFour_drawRobot();
-
-		if (help == true)
-			{ drawCoordinates(); }
-	glPopMatrix();
+	drawRobot(3);
+	// Bot Three: Two
+	drawRobot(4);
 
 	// Defensive Cannon
 	drawDefensiveCannon();
@@ -597,6 +567,34 @@ void display(void)
 	glutSwapBuffers();   // Double buffering, swap buffers
 }
 
+void drawRobot(int botNum)
+{
+	glPushMatrix();
+		switch (botNum)
+		{
+		case 1:
+			glTranslatef(botFourOne_X, botFour_Y, botFourOne_Z);
+			botFour_drawRobot();
+			break;
+		case 2:
+			glTranslatef(botThreeOne_X, botThreeOne_Y, botThreeOne_Z);
+			botThree_drawRobot(1);
+			break;
+		case 3:
+			glTranslatef(botFourTwo_X, botFour_Y, botFourTwo_Z);
+			botFour_drawRobot();
+			break;
+		case 4:
+			glTranslatef(botThreeTwo_X, botThreeTwo_Y, botThreeTwo_Z);
+			botThree_drawRobot(2);
+			break;
+		}
+
+		if (help == true)
+			{ drawCoordinates(); }
+	glPopMatrix();
+}
+
 // ----------------
 // --- Bot Four ---
 // ----------------
@@ -610,7 +608,6 @@ void botFour_drawRobot()
 	 botFour_drawBody();
 	 botFour_drawLeftLeg();
 	 botFour_drawRightLeg();
-	
 
 	glPopMatrix();
 }
@@ -632,9 +629,6 @@ void botFour_drawBody()
 	glutSolidCube(1.0);
 	glPopMatrix();
 
-	
-	
-
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botFour_robotLegs_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botFour_robotLegs_mat_specular);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, botFour_robotLegs_mat_diffuse);
@@ -646,7 +640,6 @@ void botFour_drawBody()
 	glPushMatrix();
 	glRotatef(botFour_gunAngle, 0, 0, 1.0);
 
-	
 	glPushMatrix();
 	gluCylinder(myquadric, 1, 1, 5, 6, 60);
 	glPopMatrix();
@@ -661,10 +654,7 @@ void botFour_drawBody()
 	gluCylinder(myquadric, 0.5, 0.5, 0.5, 6, 60);
 	glPopMatrix();
 
-
 	glPopMatrix();
-
-
 
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botFour_gun_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botFour_gun_mat_specular);
@@ -691,8 +681,6 @@ void botFour_drawBody()
 	glTranslatef(0, -0.55 * botFour_bodyLength, 2);
 	glutSolidCube(1.0);
 	glPopMatrix();
-
-	
 }
 
 void botFour_drawLeftLeg()
@@ -720,16 +708,12 @@ void botFour_drawLeftLeg()
 	glTranslatef(-(0.5 * botFour_bodyWidth + 0.5 * botFour_upperLegWidth), 0.5 * botFour_upperLegLength, 0.0);
 	// Position leg with respect to parent body
 	glTranslatef((1* botFour_bodyWidth + 1 * botFour_upperLegWidth), -7.5, 0); // this will be done last
-
-	
 	
 	// build upper leg
 	glPushMatrix();
 	glScalef(botFour_upperLegWidth, botFour_upperLegLength, botFour_upperLegWidth);
 	glutSolidCube(1.0);
 	glPopMatrix();
-
-
 
 	// Position ball joint with respect to upper leg
 	glTranslatef(0, -2.5, 0);
@@ -738,7 +722,6 @@ void botFour_drawLeftLeg()
 	glPushMatrix();
 	glutSolidSphere(0.6, 50, 50);
 	glPopMatrix();
-
 
 	//glTranslatef(-(0.5 * botFour_bodyWidth + 0.5 * botFour_upperLegWidth), 0.5 * botFour_upperLegLength, 0.0);
 	glRotatef(botFour_leftKneeAngle, 1.0, 0.0, 0.0);
@@ -752,7 +735,6 @@ void botFour_drawLeftLeg()
 	glScalef(botFour_upperLegWidth, botFour_upperLegLength, botFour_upperLegWidth);
 	glutSolidCube(1.0);
 	glPopMatrix();
-	
 
 	glMaterialfv(GL_FRONT, GL_AMBIENT, botFour_robotleg_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, botFour_robotleg_mat_specular);
@@ -1674,7 +1656,7 @@ void deleteBuffers()
 	glDeleteBuffers(1, &cannon_vertexVboID);
 }
 
-void exportCannonMesh() {//sets up the vbo by reading from input txt
+void exportCannonMesh() {
 	// Array sizes
 	int subcurveNumCurvePoints = 33;
 	int numberOfSides = 16;
