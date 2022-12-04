@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <dos.h> 
 #include <string.h>
 #include <math.h>
 #include <GL/glew.h>
@@ -17,6 +18,9 @@
 #include <string>
 #include <string.h>
 
+
+
+
 // ----------------
 // --- Bot Four ---
 // ----------------
@@ -32,11 +36,14 @@ float botFour_lowerLegWidth = botFour_upperLegWidth;
 float botFour_footLength = botFour_lowerLegLength / 3.0;
 float botFour_ballJointLength = botFour_lowerLegLength / 5.0;
 float botFour_footWidth = 2.0 * botFour_lowerLegWidth;
+float botFour_bar = 1.6 * botFour_bodyWidth;
 float botFour_footDepth = 2.0 * botFour_lowerLegWidth;
+float gunScale = 1.0;
 
 // Control Robot body rotation on base and gun rotation
 float botFour_robotAngle = 0.0;
 float botFour_bodyAngle = 0.0;
+float botFour_bodyHeight = 0.0;
 float botFour_gunAngle = -90.0;
 
 // Control leg rotation
@@ -59,6 +66,8 @@ bool botFour_reverse = false;
 bool botFour_firstcheck = false;
 bool botFour_stopmovingupper = false;
 bool botFour_gunStop = false;
+bool collapseStop = false;
+unsigned int botCollapseCount = 0;
 
 // Functions
 void botFour_animateUpperLegUp();
@@ -72,6 +81,7 @@ void botFour_animateLowerRightLegDown();
 void botFour_gunHandler(int param);
 void botFour_takeStep();
 void botFour_takeRightStep();
+void botFour_collapse();
 void botFour_drawRobot();
 void botFour_drawBody();
 void botFour_drawLeftLeg();
@@ -632,6 +642,7 @@ void botFour_drawBody()
 	//draw main body that can rotate along y axis
 	glPushMatrix();
 	glRotatef(botFour_bodyAngle, 0, 1.0, 0);
+	glTranslatef(0.0, botFour_bodyHeight, 0.0);
 
 	glPushMatrix();
 	glScalef(botFour_bodyWidth, botFour_bodyLength, botFour_bodyDepth);
@@ -648,7 +659,7 @@ void botFour_drawBody()
 	myquadric = gluNewQuadric();
 	glPushMatrix();
 	glRotatef(botFour_gunAngle, 0, 0, 1.0);
-
+	glScalef(gunScale, gunScale, gunScale);
 	glPushMatrix();
 	gluCylinder(myquadric, 1, 1, 5, 6, 60);
 	glPopMatrix();
@@ -672,9 +683,10 @@ void botFour_drawBody()
 	//second part of the gun
 	glPushMatrix();
 	glRotatef(botFour_gunAngle, 0, 0, 1.0);
-
+	glScalef(gunScale, gunScale, gunScale);
 	glTranslatef(0, 0, 0.7);
 	glPushMatrix();
+	glScalef(gunScale, gunScale, gunScale);
 	gluCylinder(myquadric, 0.2, 0.2, 5, 8, 60);
 	glPopMatrix();
 
@@ -686,7 +698,7 @@ void botFour_drawBody()
 	glPopMatrix();
 	//leg/hip bar for the robot
 	glPushMatrix();
-	glScalef((1.6 * botFour_bodyWidth), 1, 1);
+	glScalef(botFour_bar, 1, 1);
 	glTranslatef(0, -0.55 * botFour_bodyLength, 2);
 	glutSolidCube(1.0);
 	glPopMatrix();
@@ -1036,6 +1048,33 @@ void botFour_takeRightStep() {
 		botFour_start = false;
 		glutIdleFunc(botFour_takeStep);
 	}
+}
+
+void botFour_collapse() {
+	if (!collapseStop) {
+	
+	botFour_robotAngle += 1;
+	if (botFour_robotAngle > 360) {
+		botFour_upperLegLength = 0 * botFour_bodyLength;
+		botFour_upperLegWidth = 0 * botFour_bodyWidth;
+		botFour_lowerLegLength = botFour_upperLegLength;
+		botFour_lowerLegWidth = botFour_upperLegWidth;
+		botFour_footLength = botFour_lowerLegLength *0;
+		botFour_ballJointLength = botFour_lowerLegLength *0;
+		botFour_footWidth = 0 * botFour_lowerLegWidth;
+		botFour_footDepth = 0 * botFour_lowerLegWidth;
+		botFour_bar = 0;
+		collapseStop = true;
+	}
+}
+	if (collapseStop) {
+		if (botFour_bodyHeight >= -10) {
+		botFour_bodyHeight -= 0.5;
+	}
+	}
+		
+	glutPostRedisplay();
+
 }
 
 // -----------------
@@ -2315,7 +2354,9 @@ void translateAnimationHandler(int param)
 
 	//If becomes inactive, collapse
 	if ((collapse) && (!botThree_collapseOngoing))
-		{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true;}
+	{
+		glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true; glutIdleFunc(botFour_collapse);
+	}
 }
 
 void botThree_collapseAnimationHandler(int param)
