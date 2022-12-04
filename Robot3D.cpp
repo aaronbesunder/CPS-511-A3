@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 #include <gl/glut.h>
 #include <utility>
 #include <vector>
@@ -10,6 +12,7 @@
 #include "QuadMesh.h"
 #include <GL\freeglut_ext.h>
 #include <sstream>
+#include <iostream>
 
 // ----------------
 // --- Bot Four ---
@@ -62,6 +65,27 @@ void botFour_drawRobot();
 void botFour_drawBody();
 void botFour_drawLeftLeg();
 void botFour_drawRightLeg();
+
+// Lighting/shading and material properties for robot
+GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
+GLfloat botFour_robotBody_mat_specular[] = { 0.45f,0.55f,0.45f,1.0f };
+GLfloat botFour_robotBody_mat_diffuse[] = { 0.1f,0.35f,0.1f,1.0f };
+GLfloat botFour_robotBody_mat_shininess[] = { 32.0F };
+
+GLfloat botFour_robotleg_mat_ambient[] = { 0.0215f, 0.1745f, 0.0215f, 0.55f };
+GLfloat botFour_robotleg_mat_diffuse[] = { 0.5f,0.0f,0.0f,1.0f };
+GLfloat botFour_robotleg_mat_specular[] = { 0.7f, 0.6f, 0.6f, 1.0f };
+GLfloat botFour_robotleg_mat_shininess[] = { 32.0F };
+
+GLfloat botFour_gun_mat_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat botFour_gun_mat_diffuse[] = { 0.01f,0.0f,0.01f,0.01f };
+GLfloat botFour_gun_mat_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+GLfloat botFour_gun_mat_shininess[] = { 100.0F };
+
+GLfloat botFour_robotLegs_mat_ambient[] = { 0.25f, 0.25f, 0.25f, 1.0f };
+GLfloat botFour_robotLegs_mat_diffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+GLfloat botFour_robotLegs_mat_specular[] = { 0.774597f, 0.774597f, 0.774597f, 1.0f };
+GLfloat botFour_robotLegs_mat_shininess[] = { 76.8F };
 
 // -----------------
 // --- Bot Three ---
@@ -315,6 +339,36 @@ GLfloat botFourTwo_Z = startingZ;
 
 void translateAnimationHandler(int);
 
+// --------------
+// --- Cannon ---
+// --------------
+bool mallocCannonVbo;
+
+int cannon_vertexLen = 0;
+int cannon_vertexSize = 0;
+int cannon_quadLen = 0;
+int cannon_quadSize = 0;
+
+unsigned int cannon_vertexVboID;
+unsigned int cannon_normalVboID;
+unsigned int cannon_indexVboID;
+
+GLdouble* cannon_vertexPositionVao;
+GLdouble* cannon_vertexNormalVao;
+GLint* cannon_quadIndicesVao;
+
+// Set up lighting/shading and material properties for cannon
+GLfloat cannonMat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat cannonMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
+GLfloat cannonMat_diffuse[] = { 0.1, 0.35, 0.1, 1.0 };
+GLfloat cannonMat_shininess[] = { 10.0 };
+
+//Functions
+void generateBuffers();
+void deleteBuffers();
+void drawDefensiveCannon();
+void exportCannonMesh();
+
 // ------------
 // --- Help ---
 // ------------
@@ -344,38 +398,12 @@ GLdouble centerZ = 0;
 
 // -------------------------------------------------------
 
-// Lighting/shading and material properties for robot - upcoming lecture - just copy for now
-// Robot RGBA material properties (NOTE: we will learn about this later in the semester)
-GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
-GLfloat botFour_robotBody_mat_specular[] = { 0.45f,0.55f,0.45f,1.0f };
-GLfloat botFour_robotBody_mat_diffuse[] = { 0.1f,0.35f,0.1f,1.0f };
-GLfloat botFour_robotBody_mat_shininess[] = { 32.0F };
-
-GLfloat botFour_robotleg_mat_ambient[] = { 0.0215f, 0.1745f, 0.0215f, 0.55f };
-GLfloat botFour_robotleg_mat_diffuse[] = { 0.5f,0.0f,0.0f,1.0f };
-GLfloat botFour_robotleg_mat_specular[] = { 0.7f, 0.6f, 0.6f, 1.0f };
-GLfloat botFour_robotleg_mat_shininess[] = { 32.0F };
-
-GLfloat botFour_gun_mat_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-GLfloat botFour_gun_mat_diffuse[] = { 0.01f,0.0f,0.01f,0.01f };
-GLfloat botFour_gun_mat_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-GLfloat botFour_gun_mat_shininess[] = { 100.0F };
-
-GLfloat botFour_robotLegs_mat_ambient[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-GLfloat botFour_robotLegs_mat_diffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-GLfloat botFour_robotLegs_mat_specular[] = { 0.774597f, 0.774597f, 0.774597f, 1.0f };
-GLfloat botFour_robotLegs_mat_shininess[] = { 76.8F };
-
-
 // Light properties
 GLfloat light_position0[] = { -4.0F, 8.0F, 8.0F, 1.0F };
 GLfloat light_position1[] = { 4.0F, 8.0F, 8.0F, 1.0F };
 GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 GLfloat light_ambient[] = { 0.2F, 0.2F, 0.2F, 1.0F };
-
-
-
 
 // Mouse button
 int currentButton;
@@ -550,6 +578,9 @@ void display(void)
 		if (help == true)
 			{ drawCoordinates(); }
 	glPopMatrix();
+
+	// Defensive Cannon
+	drawDefensiveCannon();
 
 	// Help
 	drawHelp();
@@ -1592,6 +1623,147 @@ void botThree_walkAnimationHandler(int param)
 		}
 			
 	}
+}
+
+// --------------
+// --- Cannon ---
+// --------------
+
+void generateBuffers()
+{
+	GLenum err = glewInit();
+	if (GLEW_OK != err) {
+		fprintf(stderr, "Glew error: %s\n", glewGetErrorString(err));
+	}
+
+	//Position
+	glGenBuffers(1, &cannon_vertexVboID);
+	glBindBuffer(GL_ARRAY_BUFFER, cannon_vertexVboID);
+	glBufferData(GL_ARRAY_BUFFER, cannon_vertexSize, cannon_vertexPositionVao, GL_STATIC_DRAW);
+	glVertexPointer(3, GL_DOUBLE, 0, NULL);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Normal
+	glGenBuffers(1, &cannon_normalVboID);
+	glBindBuffer(GL_ARRAY_BUFFER, cannon_normalVboID);
+	glBufferData(GL_ARRAY_BUFFER, cannon_vertexSize, cannon_vertexNormalVao, GL_STATIC_DRAW);
+	glNormalPointer(GL_DOUBLE, 0, NULL);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Indices
+	glGenBuffers(1, &cannon_indexVboID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, cannon_quadSize, cannon_quadIndicesVao, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void deleteBuffers()
+{
+	//Clean up
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &cannon_indexVboID);
+	glDeleteBuffers(1, &cannon_normalVboID);
+	glDeleteBuffers(1, &cannon_vertexVboID);
+}
+
+void exportCannonMesh()
+{
+	FILE* file;
+
+	fopen_s(&file, "Mesh/cannon.obj", "r");
+
+	if (NULL == file) {
+		printf("File can not be opened\n");
+	}
+
+	float x, y, z;
+	int v1, v2, v3, v4;
+	int subcurveNumCurvePoints;
+	int numberOfSides;
+	int cannon_verLen;
+	int cannon_quadLen;
+
+	//Array sizes
+	fscanf_s(file, "# subcurveNumCurvePoints: %d\n", &subcurveNumCurvePoints);
+	fscanf_s(file, "# numberOfSides: %d\n", &numberOfSides);
+	int doubleSize = 8;
+	int intSize = 4;
+
+	cannon_verLen = subcurveNumCurvePoints * numberOfSides;
+	cannon_vertexLen = cannon_verLen * 3;
+	cannon_vertexSize = cannon_vertexLen * doubleSize;
+
+	cannon_quadLen = (subcurveNumCurvePoints - 1) * numberOfSides;
+	cannon_quadLen = cannon_quadLen * 4;
+	cannon_quadSize = cannon_quadLen * intSize;
+
+	//Malloc
+	if (!mallocCannonVbo)
+	{
+		cannon_vertexPositionVao = (GLdouble*)malloc(cannon_vertexSize);
+		cannon_vertexNormalVao = (GLdouble*)malloc(cannon_vertexSize);
+		cannon_quadIndicesVao = (GLint*)malloc(cannon_quadSize);
+		mallocCannonVbo = true;
+	}
+
+	//Vertex Position
+	int index = 0;
+	fscanf_s(file, "# Vertex Position\n");
+	while (fscanf_s(file, "v %f %f %f\n", &x, &y, &z) == 3)
+	{
+		cannon_vertexPositionVao[index + 0] = (GLdouble)x;
+		cannon_vertexPositionVao[index + 1] = (GLdouble)y;
+		cannon_vertexPositionVao[index + 2] = (GLdouble)z;
+		index = index + 3;
+	}
+
+	//Vertex Normal
+	index = 0;
+	fscanf_s(file, "# Vertex Normal\n");
+	while (fscanf_s(file, "vn %f %f %f\n", &x, &y, &z) == 3)
+	{
+		cannon_vertexNormalVao[index + 0] = (GLdouble)x;
+		cannon_vertexNormalVao[index + 1] = (GLdouble)y;
+		cannon_vertexNormalVao[index + 2] = (GLdouble)z;
+		index = index + 3;
+	}
+
+	//Indices
+	index = 0;
+	fscanf_s(file, "# Indices\n");
+	while (fscanf_s(file, "f %d//%*d %d//%*d %d//%*d %d//%*d\n", &v1, &v2, &v3, &v4) == 4)
+	{
+		cannon_quadIndicesVao[index + 0] = (GLint)v1 - 1;
+		cannon_quadIndicesVao[index + 1] = (GLint)v2 - 1;
+		cannon_quadIndicesVao[index + 2] = (GLint)v3 - 1;
+		cannon_quadIndicesVao[index + 3] = (GLint)v4 - 1;
+		index = index + 4;
+	}
+}
+
+void drawDefensiveCannon()
+{
+	exportCannonMesh();
+
+	glPushMatrix();
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, cannonMat_ambient);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, cannonMat_specular);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, cannonMat_diffuse);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
+
+		// Replace this code with VAO or VBO and drawElements()
+
+		//Draw elements
+		generateBuffers();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
+		glDrawElements(GL_QUADS, cannon_quadLen, GL_UNSIGNED_INT, NULL);
+		deleteBuffers();
+	glPopMatrix();
 }
 
 // ------------
