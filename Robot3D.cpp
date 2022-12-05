@@ -198,13 +198,13 @@ void display(void)
 	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
 
 	//Ground Level
-	//gluLookAt(0.0, -19.9, 30.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
+	//gluLookAt(0.0, -19.9, 50.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
 
 	//Cannon Back View
 	//gluLookAt(0.0, -15.5, 60, 0.0, -10.5, 0.0, 0.0, 1.0, 0.0);
 
 	//Cannon Side View
-	//gluLookAt(-20, -10.5, 45.0, 0.0, -10.5, 45, 0.0, 1.0, 0.0);
+	//gluLookAt(-20, -19, 45, 0.0, -19, 45, 0.0, 1.0, 0.0);
 
 	// Defensive Cannon
 	drawDefensiveCannon();
@@ -734,7 +734,7 @@ void mouseMotionHandler(int xMouse, int yMouse)
 		cannon_rotateX += -deltaX * sensitivity;
 
 		// Cannon Rotate X: Limit
-		float xLimit = 50;
+		float xLimit = 75;
 		if (cannon_rotateX > xLimit)
 			{ cannon_rotateX = xLimit; }
 		if (cannon_rotateX < -xLimit)

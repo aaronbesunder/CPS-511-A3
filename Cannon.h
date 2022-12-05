@@ -179,8 +179,8 @@ void drawDefensiveCannon()
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
 
 		// Transformations
-		glTranslatef(0, -15.0, 45);
-		glRotatef(-70, 1, 0, 0);
+		glTranslatef(0, -18.0, 45);
+		glRotatef(-90, 1, 0, 0);
 
 		// Rotate according to use mouse input
 		//Y
@@ -225,17 +225,17 @@ void drawCannonProjectile(int index)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
 
 		glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
-		glTranslatef(0.0, -15, 40 + projectile_depth);
+		glTranslatef(0.0, -18, 40 + projectile_depth);
 
 
-		//// Rotate according to use mouse input
+		// Rotate according to use mouse input
 		//Y
 		glRotatef(yAng, 1, 0, 0);
 
 		//X
 		glRotatef(xAng, 0, 1, 0);
 
-		glRotatef(20, 1, 0, 0);
+		//glRotatef(20, 1, 0, 0);
 
 		//glScalef(x, y, z);
 		glScalef(projectile_width, projectile_height, projectile_depth);
@@ -243,6 +243,11 @@ void drawCannonProjectile(int index)
 
 		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
 		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
+
+		/*glPushMatrix();
+		glTranslatef(0.0, -18, 40 + projectile_depth);
+		glutSolidCube(5);
+		glPopMatrix();*/
 	glPopMatrix();
 }
 
@@ -319,15 +324,15 @@ void cannon_projectileAnimationHandler(int param)
 			float yPos = arrayGet(&projectile_Ypos, index);
 			float zPos = arrayGet(&projectile_Zpos, index); 
 
-			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22;
+			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22 * 0;
 
 			//float addX = cos(-xAng * toRad) * cannon_projectileSpeed;
-			float addX = (tan(-xAng * toRad) * cannon_projectileSpeed);
-			float addY = (sin((yAng + addCannonY) * toRad) * cannon_projectileSpeed);
+			float addX = tan(-xAng * toRad) * cannon_projectileSpeed;
+			float addY = sin(yAng * toRad) * cannon_projectileSpeed;
 			float addZ = cannon_projectileSpeed;
 
-			arrayAdd(&projectile_Xpos, index, (addX*0.94));
-			arrayAdd(&projectile_Ypos, index, (addY*0.65));
+			arrayAdd(&projectile_Xpos, index, addX);
+			arrayAdd(&projectile_Ypos, index, addY);
 			arrayAdd(&projectile_Zpos, index, addZ);
 
 			// Remove if reached farplane

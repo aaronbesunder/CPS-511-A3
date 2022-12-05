@@ -11,7 +11,7 @@ GLdouble nearPlane = 0.10;	// 0.2		0.10
 GLdouble farPlane = 250.0;	// 40.0		100.0
 
 GLdouble eyeX = 0;
-GLdouble eyeY = -10;
+GLdouble eyeY = -14;
 GLdouble eyeZ = 50;
 
 GLdouble centerX = 0;
