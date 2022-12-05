@@ -389,8 +389,8 @@ int cannon_vertexLen = 0;
 int cannon_vertexSize = 0;
 int cannon_quadLen = 0;
 int cannon_quadSize = 0;
-float objx = 0;
-float objy = 0;
+float cannon_rotateX = 0;
+float cannon_rotateY = 0;
 unsigned int cannon_vertexVboID;
 unsigned int cannon_normalVboID;
 unsigned int cannon_indexVboID;
@@ -437,6 +437,9 @@ GLdouble eyeZ = 50;
 GLdouble centerX = 0;
 GLdouble centerY = -20.0;
 GLdouble centerZ = 0;
+
+GLfloat mouse_prevX;
+GLfloat mouse_prevY;
 
 // -------------------------------------------------------
 
@@ -583,6 +586,9 @@ void display(void)
 	//Ground Level
 	//gluLookAt(0.0, -19.9, 30.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
 
+	// Defensive Cannon
+	drawDefensiveCannon();
+
 	// Draw Robots
 	
 	// Bot Four: One
@@ -593,10 +599,6 @@ void display(void)
 	drawRobot(3);
 	// Bot Three: Two
 	drawRobot(4);
-
-	// Defensive Cannon
-	
-	drawDefensiveCannon();
 	
 	// Help
 	drawHelp();
@@ -1912,20 +1914,24 @@ void drawDefensiveCannon()
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, cannonMat_specular);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, cannonMat_diffuse);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
-	
-		//Transformations
+
+		// Transformations
 		glTranslatef(0, -10.0, 45);
 		glRotatef(-70, 1, 0, 0);
 
-		//Draw elements
+		// Rotate according to use mouse input
+		//Y
+		glRotatef(cannon_rotateY, 1, 0, 0);
+
+		//X
+		glTranslatef(0, 0, 45);
+		glRotatef(cannon_rotateX, 0, 0, 1);
+		glTranslatef(0, 0, -45);
+
+		// Draw elements
 		generateBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
-		glPushMatrix();
-		glTranslatef(0, 0, -20);
-		glRotatef(objx, 0.0, 0.0, 1.0);
-		glTranslatef(0, 0, 20);
 		glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
-		glPopMatrix();
 		deleteBuffers();
 	glPopMatrix();
 }
@@ -1948,17 +1954,15 @@ void drawHelp()
 void drawLeftText()
 {
 	glPushMatrix();
-		//int x = -23;
-		//int y = 12;
-		int x = eyeZ * -0.65;
-		int y = -eyeY;
+		int x = 10;
+		int y = vHeight - 20;
 
 		//Colours
 		float r = 255;
 		float g = 255;
 		float b = 255;
 		glColor3f(r, g, b);
-		glRasterPos2f(x, y);
+		glWindowPos2f(x, y);
 		char str[400] = "";
 		if (help != true)
 		{
@@ -1976,21 +1980,15 @@ void drawLeftText()
 void drawRightText()
 {
 	glPushMatrix();
-		//int x = 15;
-		//int y = 12;
-		int x = eyeZ * 0.4;
-		int y = -eyeY;
-
-		//Ground Level
-		//int x = 0;
-		//int y = -20;
+		int x = vWidth - 130;
+		int y = vHeight - 20;
 
 		// Colours
 		float r = 255;
 		float g = 255;
 		float b = 255;
 		glColor3f(r, g, b);
-		glRasterPos2f(x, y);
+		glWindowPos2f(x, y);
 		char str[1000] = "";
 		if (help != true)
 		{
@@ -1998,12 +1996,12 @@ void drawRightText()
 		}
 		else
 		{
-			sprintf_s(str, "Robot Angle: %0.1f\n\nBotThree: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotThree: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f", 
+			sprintf_s(str, "Robot Angle: %0.1f\n\nBotThree: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotThree: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f\n\nCannon Angle: %0.1f", 
 				botThree_robotAngle, botThree_bodyAngle, botThreeOne_rightHipAngle, botThreeOne_rightKneeAngle,
 				botThree_bodyAngle, botThreeTwo_rightHipAngle, botThreeTwo_rightKneeAngle,
 				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle, 
 				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle,
-				rotateSpeed);
+				rotateSpeed, cannon_rotateX);
 		}
 		glutBitmapString(GLUT_BITMAP_HELVETICA_12, reinterpret_cast<const unsigned char*>
 			(str));
@@ -2367,8 +2365,8 @@ void mouse(int button, int state, int x, int y)
 	case GLUT_LEFT_BUTTON:
 		if (state == GLUT_DOWN)
 		{
-			;
-
+			mouse_prevX = x;
+			mouse_prevY = y;
 		}
 		break;
 	case GLUT_RIGHT_BUTTON:
@@ -2390,8 +2388,36 @@ void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
-		objx = xMouse;
-		objy = -yMouse;
+		float sensitivity = 0.5;
+
+		// Cannon Rotate X
+		float deltaX = xMouse - mouse_prevX;
+		cannon_rotateX += -deltaX * sensitivity;
+
+		// Cannon Rotate X: Limit
+		float xLimit = 50;
+		if (cannon_rotateX > xLimit)
+			{ cannon_rotateX = xLimit; }
+		if (cannon_rotateX < -xLimit)
+			{ cannon_rotateX = -xLimit; }
+
+		// Cannon Rotate X: Update Prev
+		mouse_prevX = xMouse;
+
+		// Cannon Rotate Y
+		float deltaY = yMouse - mouse_prevY;
+		cannon_rotateY += -deltaY * sensitivity;
+
+		// Cannon Rotate Y: Limit
+		float yLimit = 20;
+		if (cannon_rotateY > yLimit)
+			{ cannon_rotateY = yLimit; }
+		if (cannon_rotateY < -yLimit)
+			{ cannon_rotateY = -yLimit; }
+
+		// Cannon Rotate Y: Update Prev
+		mouse_prevY = yMouse;
+
 		glutPostRedisplay();
 	}
 
