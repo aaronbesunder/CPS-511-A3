@@ -971,4 +971,27 @@ void botThree_collapseAnimationHandler(int param)
 	}
 }
 
+// -----------------
+// --- Functions ---
+// -----------------
+
+void collapseBotThree(int botNum)
+{
+	switch (botNum)
+	{
+	case 1:
+		botThreeOne_active = false;
+		break;
+	case 2:
+		botThreeTwo_active = false;
+		break;
+	}
+
+	if (!botThree_collapseOngoing)
+	{
+		botThree_collapseOngoing = true;
+		glutTimerFunc(10, botThree_collapseAnimationHandler, 0);
+	}
+}
+
 #pragma once

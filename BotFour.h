@@ -715,4 +715,28 @@ void botFour_collapseAnimationHandler(int param)
 	}
 }
 
+// -----------------
+// --- Functions ---
+// -----------------
+
+void collapseBotFour(int botNum)
+{
+	switch (botNum)
+	{
+	case 1:
+		botFourOne_active = false;
+		break;
+	case 2:
+		botFourTwo_active = false;
+		break;
+	}
+	botFour_stop = true;
+
+	if (!botFour_collapseOngoing)
+	{
+		botFour_collapseOngoing = true;
+		glutTimerFunc(10, botFour_collapseAnimationHandler, 0);
+	}
+}
+
 #pragma once
