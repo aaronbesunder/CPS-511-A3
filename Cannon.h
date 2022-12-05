@@ -61,9 +61,9 @@ arrayClass projectile_Zpos{}; // Distance
 arrayClass projectile_Yang{};
 arrayClass projectile_Xang{};
 
-// ------------
-// --- Draw ---
-// ------------
+// --------------
+// --- Cannon ---
+// --------------
 
 void generateBuffers()
 {
@@ -200,6 +200,10 @@ void drawDefensiveCannon()
 	glPopMatrix();
 }
 
+// ------------------
+// --- Projectile ---
+// ------------------
+
 void drawCannonProjectile(int index)
 {
 	// Instantiate arrays if needed
@@ -227,7 +231,6 @@ void drawCannonProjectile(int index)
 		glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
 		glTranslatef(0.0, -18, 40 + projectile_depth);
 
-
 		// Rotate according to use mouse input
 		//Y
 		glRotatef(yAng, 1, 0, 0);
@@ -239,15 +242,10 @@ void drawCannonProjectile(int index)
 
 		//glScalef(x, y, z);
 		glScalef(projectile_width, projectile_height, projectile_depth);
-		//glScalef(projectile_width, projectile_height, 1);
 
 		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
 		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
 
-		/*glPushMatrix();
-		glTranslatef(0.0, -18, 40 + projectile_depth);
-		glutSolidCube(5);
-		glPopMatrix();*/
 	glPopMatrix();
 }
 

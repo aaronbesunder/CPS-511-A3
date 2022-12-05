@@ -166,9 +166,11 @@
     <ClInclude Include="..\..\..\OneDrive\Documents\School\Year 4\Fall 2022\CPS511\HierarchicalRobotExample\QuadMesh.h" />
     <ClInclude Include="..\..\..\OneDrive\Documents\School\Year 4\Fall 2022\CPS511\HierarchicalRobotExample\VECTOR3D.h" />
     <ClInclude Include="Array.h" />
+    <ClInclude Include="Bot.h" />
     <ClInclude Include="BotFour.h" />
     <ClInclude Include="BotThree.h" />
     <ClInclude Include="Cannon.h" />
+    <ClInclude Include="Help.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
