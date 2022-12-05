@@ -333,6 +333,7 @@ GLfloat botThree_robotLeg_mat_shininess[] = { 10.0F };
 // ---------------------
 
 unsigned int botCollapseCount = 0;
+bool botsMoving = false;
 
 GLfloat botThree_startingY = -8.5;
 GLfloat botFour_startingY = -4;
@@ -1094,49 +1095,53 @@ void botFour_gunHandler(int param) {
 
 //cases for the robot to call in order to animate taking a step
 void botFour_takeStep() {
-	
-	if (botFour_start == false) {
-		botFour_leftHipAngle = 0;
-		botFour_leftKneeAngle = botFour_leftleginit;
-		botFour_start = true;
-		botFour_stopmovingupper = false;
-	}
-	else if (botFour_leftHipAngle >= -60 && botFour_leftKneeAngle < 60 && botFour_stopmovingupper==false) {
-		botFour_animateUpperLegUp();
-	}
-	else if (botFour_leftHipAngle < -60 && botFour_leftKneeAngle < 60) {
-		botFour_animateLowerLegUp();
-	}
-	else if (botFour_reverse == true && botFour_leftHipAngle<=0) {
-		botFour_animateUpperLegDown();
-	}
-	else if (botFour_reverse == true && botFour_firstcheck==true && botFour_leftKneeAngle >= botFour_leftleginit) {
-		botFour_animateLowerLegDown();
-		botFour_start = false;
-		glutIdleFunc(botFour_takeRightStep);
+	if (botFour_walkcheck)
+	{
+		if (botFour_start == false) {
+			botFour_leftHipAngle = 0;
+			botFour_leftKneeAngle = botFour_leftleginit;
+			botFour_start = true;
+			botFour_stopmovingupper = false;
+		}
+		else if (botFour_leftHipAngle >= -60 && botFour_leftKneeAngle < 60 && botFour_stopmovingupper == false) {
+			botFour_animateUpperLegUp();
+		}
+		else if (botFour_leftHipAngle < -60 && botFour_leftKneeAngle < 60) {
+			botFour_animateLowerLegUp();
+		}
+		else if (botFour_reverse == true && botFour_leftHipAngle <= 0) {
+			botFour_animateUpperLegDown();
+		}
+		else if (botFour_reverse == true && botFour_firstcheck == true && botFour_leftKneeAngle >= botFour_leftleginit) {
+			botFour_animateLowerLegDown();
+			botFour_start = false;
+			glutIdleFunc(botFour_takeRightStep);
+		}
 	}
 }
 void botFour_takeRightStep() {
-
-	if (botFour_start == false) {
-		botFour_rightHipAngle = 0;
-		botFour_rightKneeAngle = botFour_rightleginit;
-		botFour_start = true;
-		botFour_stopmovingupper = false;
-	}
-	else if (botFour_rightHipAngle >= -60 && botFour_rightKneeAngle < 60 && botFour_stopmovingupper == false) {
-		botFour_animateUpperRightLegUp();
-	}
-	else if (botFour_rightHipAngle < -60 && botFour_rightKneeAngle < 60) {
-		botFour_animateLowerRightLegUp();
-	}
-	else if (botFour_reverse == true && botFour_rightHipAngle <= 0) {
-		botFour_animateUpperRightLegDown();
-	}
-	else if (botFour_reverse == true && botFour_firstcheck == true && botFour_rightKneeAngle >= botFour_rightleginit) {
-		botFour_animateLowerRightLegDown();
-		botFour_start = false;
-		glutIdleFunc(botFour_takeStep);
+	if (botFour_walkcheck)
+	{
+		if (botFour_start == false) {
+			botFour_rightHipAngle = 0;
+			botFour_rightKneeAngle = botFour_rightleginit;
+			botFour_start = true;
+			botFour_stopmovingupper = false;
+		}
+		else if (botFour_rightHipAngle >= -60 && botFour_rightKneeAngle < 60 && botFour_stopmovingupper == false) {
+			botFour_animateUpperRightLegUp();
+		}
+		else if (botFour_rightHipAngle < -60 && botFour_rightKneeAngle < 60) {
+			botFour_animateLowerRightLegUp();
+		}
+		else if (botFour_reverse == true && botFour_rightHipAngle <= 0) {
+			botFour_animateUpperRightLegDown();
+		}
+		else if (botFour_reverse == true && botFour_firstcheck == true && botFour_rightKneeAngle >= botFour_rightleginit) {
+			botFour_animateLowerRightLegDown();
+			botFour_start = false;
+			glutIdleFunc(botFour_takeStep);
+		}
 	}
 }
 
@@ -2306,6 +2311,7 @@ void keyboard(unsigned char key, int x, int y)
 
 		// General
 		rotateSpeed = 2.0;
+		botsMoving = false;
 
 		botThreeOne_active = true;
 		botThreeOne_Y = botThree_startingY;
@@ -2324,7 +2330,11 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'a':
 	case 'A':
-		glutTimerFunc(10, translateAnimationHandler, 0);
+		if (!botsMoving)
+		{
+			botsMoving = true;
+			glutTimerFunc(10, translateAnimationHandler, 0);
+		}
 		break;
 	}
 
@@ -2430,64 +2440,68 @@ void mouseMotionHandler(int xMouse, int yMouse)
 
 void translateAnimationHandler(int param)
 {
+	if (botsMoving)
+	{
+		// Walk Cycle: Bot Three
+		if (botThree_walkCycle == false)
+		{
+			botThree_walkCycle = true;
+			glutTimerFunc(10, botThree_walkAnimationHandler, 0);
+		}
+
+		// Walk Cycle: Bot Four
+		if (botFour_walkcheck == false) {
+			botFour_walkcheck = true;
+			glutIdleFunc(botFour_takeStep);
+		}
 	
-	// Walk Cycle: Bot Three
-	if (botThree_walkCycle == false)
-	{
-		botThree_walkCycle = true;
-		glutTimerFunc(10, botThree_walkAnimationHandler, 0);
-	}
+		// Update Z
+		double speed = 0.2;
+		bool threeCollapse = false;
+		bool fourCollapse = false;
 
-	// Walk Cycle: Bot Four
-	if (botFour_walkcheck == false) {
-		glutIdleFunc(botFour_takeStep);
-		botFour_walkcheck = true;
-	}
+		if (botThreeOne_active)
+		{
+			botThreeOne_Z += speed;
+			if (botThreeOne_Z >= endingZ)
+				{ botThreeOne_active = false; threeCollapse = true; }
+		}
+		if (botThreeTwo_active)
+		{
+			botThreeTwo_Z += speed;
+			if (botThreeTwo_Z >= endingZ)
+				{ botThreeTwo_active = false; threeCollapse = true; }
+		}
+
+		if (botFourOne_active)
+		{
+			botFourOne_Z += speed;
+			if (botFourOne_Z >= endingZ)
+				{ botFourOne_active = false; botFour_stop = true; fourCollapse = true; }
+		}
+		if (botFourTwo_active)
+		{
+			botFourTwo_Z += speed;
+			if (botFourTwo_Z >= endingZ)
+				{ botFourTwo_active = false; botFour_stop = true; fourCollapse = true; }
+		}
+
+		glutPostRedisplay();
+
+		//If botThree becomes inactive, collapse
+		if ((threeCollapse) && (!botThree_collapseOngoing))
+			{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true; }
 	
-	// Update Z
-	double speed = 0.2;
-	bool threeCollapse = false;
-	bool fourCollapse = false;
+		//If botFour becomes inactive, collapse
+		if (fourCollapse) 
+			{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); botFour_collapseOngoing = true; }
 
-	if (botThreeOne_active)
-	{
-		botThreeOne_Z += speed;
-		if (botThreeOne_Z >= endingZ)
-			{ botThreeOne_active = false; threeCollapse = true; }
+		//If not all at end of line, continue
+		if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
+			{ glutTimerFunc(10, translateAnimationHandler, 0); }
+		else
+			{ botsMoving = false; }
 	}
-	if (botThreeTwo_active)
-	{
-		botThreeTwo_Z += speed;
-		if (botThreeTwo_Z >= endingZ)
-			{ botThreeTwo_active = false; threeCollapse = true; }
-	}
-
-	if (botFourOne_active)
-	{
-		botFourOne_Z += speed;
-		if (botFourOne_Z >= endingZ)
-			{ botFourOne_active = false; botFour_stop = true; fourCollapse = true; }
-	}
-	if (botFourTwo_active)
-	{
-		botFourTwo_Z += speed;
-		if (botFourTwo_Z >= endingZ)
-			{ botFourTwo_active = false; botFour_stop = true; fourCollapse = true; }
-	}
-
-	glutPostRedisplay();
-
-	//If botThree becomes inactive, collapse
-	if ((threeCollapse) && (!botThree_collapseOngoing))
-		{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true; }
-	
-	//If botFour becomes inactive, collapse
-	if (fourCollapse) 
-		{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); botFour_collapseOngoing = true; }
-
-	//If not all at end of line, continue
-	if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
-		{ glutTimerFunc(10, translateAnimationHandler, 0); }
 }
 
 void botThree_collapseAnimationHandler(int param)
@@ -2574,7 +2588,7 @@ void botFour_collapseAnimationHandler(int param)
 	if (botFour_collapseOngoing)
 	{
 		bool done = true;
-		int spinSpeed = 4;
+		int spinSpeed = 5;
 		int endHeight = -17.4;
 		double fallSpeed = -0.5;
 
