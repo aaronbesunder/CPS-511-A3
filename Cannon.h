@@ -194,7 +194,8 @@ void drawDefensiveCannon()
 		// Draw elements
 		generateBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
-		glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
+		//glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_LINE_LOOP, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
 		deleteBuffers();
 	glPopMatrix();
 }
@@ -223,9 +224,9 @@ void drawCannonProjectile(int index)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
 
-		glTranslatef(xPos, yPos, -zPos);
-		//glTranslatef(0, 0, -z);
-		glTranslatef(0, -10.0, 40);
+		glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
+		glTranslatef(0.0, -10, 40 + projectile_depth);
+
 
 		//// Rotate according to use mouse input
 		//Y
@@ -234,11 +235,11 @@ void drawCannonProjectile(int index)
 		//X
 		glRotatef(xAng, 0, 1, 0);
 
+		glRotatef(20, 1, 0, 0);
+
 		//glScalef(x, y, z);
 		glScalef(projectile_width, projectile_height, projectile_depth);
-
-		//glRotatef(angle, x, y, z)
-		glRotatef(90.0, 0.0, 0.0, 1.0);
+		//glScalef(projectile_width, projectile_height, 1);
 
 		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
 		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
@@ -259,6 +260,13 @@ void addCannonProjectile()
 
 	arrayInsert(&projectile_Xang, cannon_rotateX);
 	arrayInsert(&projectile_Yang, cannon_rotateY);
+
+	int index = arrayGetSize(&projectile_Xpos);
+	float toRad = M_PI / 180;
+
+	float xAng = arrayGet(&projectile_Xang, index);
+	float yAng = arrayGet(&projectile_Yang, index);
+	
 
 	arrayInsert(&projectile_Xpos, 0);
 	arrayInsert(&projectile_Ypos, 0);
