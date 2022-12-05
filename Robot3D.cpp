@@ -195,10 +195,13 @@ void display(void)
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 30) looking at the origin, up along positive y axis
 	//gluLookAt(0.0, 6.0, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
+	//gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
 
 	//Ground Level
 	//gluLookAt(0.0, -19.9, 50.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
+
+	//Top Down
+	gluLookAt(0.0, 100, 80.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 	//Cannon Back View
 	//gluLookAt(0.0, -15.5, 60, 0.0, -10.5, 0.0, 0.0, 1.0, 0.0);
