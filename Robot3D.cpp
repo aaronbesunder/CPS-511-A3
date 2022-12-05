@@ -29,30 +29,17 @@
 unsigned int botCollapseCount = 0;
 bool botsMoving = false;
 
-GLfloat botThree_startingY = -8.5;
-GLfloat botFour_startingY = -4;
-
 GLfloat startingZ = -200;
 GLfloat endingZ = -5;
 
 // BotThree: One
-GLfloat botThreeOne_X = -10;
-GLfloat botThreeOne_Y = botThree_startingY;
 GLfloat botThreeOne_Z = startingZ;
-
 // BotThree: Two
-GLfloat botThreeTwo_X = 30;
-GLfloat botThreeTwo_Y = botThree_startingY;
 GLfloat botThreeTwo_Z = startingZ;
 
 // BotFour: One
-GLfloat botFourOne_X = -30;
-GLfloat botFourOne_Y = botFour_startingY;
 GLfloat botFourOne_Z = startingZ;
-
 // BotFour: Two
-GLfloat botFourTwo_X = 10;
-GLfloat botFourTwo_Y = botFour_startingY;
 GLfloat botFourTwo_Z = startingZ;
 
 void translateAnimationHandler(int);
@@ -850,172 +837,3 @@ void translateAnimationHandler(int param)
 			{ botsMoving = false; }
 	}
 }
-
-void botThree_collapseAnimationHandler(int param)
-{
-	if (botThree_collapseOngoing)
-	{
-		bool done = true;
-		float yCollapseSpeed = -0.07;
-		float yEnd = -14;
-		float hipEnd = 75;
-		float kneeEnd = 210;
-
-		// BotThree: One
-		if (!botThreeOne_active)
-		{
-			// Y
-			if (botThreeOne_Y > yEnd)
-				{ botThreeOne_Y += yCollapseSpeed; done = false; }
-
-			// Hip
-			if (botThreeOne_leftHipAngle > hipEnd)
-				{ botThreeOne_leftHipAngle--; done = false; }
-			else if (botThreeOne_leftHipAngle < hipEnd)
-				{ botThreeOne_leftHipAngle++; done = false; }
-
-			if (botThreeOne_rightHipAngle > hipEnd)
-				{ botThreeOne_rightHipAngle--; done = false; }
-			else if (botThreeOne_rightHipAngle < hipEnd)
-				{ botThreeOne_rightHipAngle++; done = false; }
-
-			// Knee
-			if (botThreeOne_leftKneeAngle > kneeEnd)
-				{ botThreeOne_leftKneeAngle--; done = false; }
-			else if (botThreeOne_leftKneeAngle < kneeEnd)
-				{ botThreeOne_leftKneeAngle++; done = false; }
-
-			if (botThreeOne_rightKneeAngle > kneeEnd)
-				{ botThreeOne_rightKneeAngle--; done = false; }
-			else if (botThreeOne_rightKneeAngle < kneeEnd)
-				{ botThreeOne_rightKneeAngle++; done = false; }
-		}
-
-		// BotThree: Two
-		if (!botThreeTwo_active)
-		{
-			// Y
-			if (botThreeTwo_Y > yEnd)
-				{ botThreeTwo_Y += yCollapseSpeed; done = false; }
-
-			// Hip
-			if (botThreeTwo_leftHipAngle > hipEnd)
-				{ botThreeTwo_leftHipAngle--; done = false; }
-			else if (botThreeTwo_leftHipAngle < hipEnd)
-				{ botThreeTwo_leftHipAngle++; done = false; }
-
-			if (botThreeTwo_rightHipAngle > hipEnd)
-				{ botThreeTwo_rightHipAngle--; done = false; }
-			else if (botThreeTwo_rightHipAngle < hipEnd)
-				{ botThreeTwo_rightHipAngle++; done = false; }
-
-			// Knee
-			if (botThreeTwo_leftKneeAngle > kneeEnd)
-				{ botThreeTwo_leftKneeAngle--; done = false; }
-			else if (botThreeTwo_leftKneeAngle < kneeEnd)
-				{ botThreeTwo_leftKneeAngle++; done = false; }
-
-			if (botThreeTwo_rightKneeAngle > kneeEnd)
-				{ botThreeTwo_rightKneeAngle--; done = false; }
-			else if (botThreeTwo_rightKneeAngle < kneeEnd)
-				{ botThreeTwo_rightKneeAngle++; done = false; }
-		}
-
-		glutPostRedisplay();
-		//If not all at end of line, continue
-		if (!done)
-			{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); }
-		else
-			{ botThree_collapseOngoing = false; }
-	}
-}
-
-void botFour_collapseAnimationHandler(int param)
-{
-	if (botFour_collapseOngoing)
-	{
-		bool done = true;
-		int spinSpeed = 5;
-		int endHeight = -17.4;
-		double fallSpeed = -0.5;
-
-		// BotFour: One
-		if (!botFourOne_active)
-		{
-			if (botFourOne_robotAngle > 360) {
-				//If spun, then make legs disappear
-				if (botFourOne_bar != 0)
-				{
-					botFourOne_upperLegLength = 0 * botFourOne_bodyLength;
-					botFourOne_upperLegWidth = 0 * botFourOne_bodyWidth;
-					botFourOne_lowerLegLength = botFourOne_upperLegLength;
-					botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
-					botFourOne_footLength = botFourOne_lowerLegLength * 0;
-					botFourOne_ballJointLength = botFourOne_lowerLegLength * 0;
-					botFourOne_footWidth = 0 * botFourOne_lowerLegWidth;
-					botFourOne_footDepth = 0 * botFourOne_lowerLegWidth;
-					botFourOne_bar = 0;
-					done = false;
-				}
-				//If legs have disappeared, then fall
-				else
-				{
-					if (botFourOne_Y >= endHeight)
-					{
-						botFourOne_Y += fallSpeed;
-						done = false;
-					}
-				}
-			}
-			//If not spun, then spin
-			else
-			{ 
-				botFourOne_robotAngle += spinSpeed;
-				done = false; 
-			}
-		}
-
-		// BotFour: Two
-		if (!botFourTwo_active)
-		{
-			if (botFourTwo_robotAngle > 360) {
-				//If spun, then make legs disappear
-				if (botFourTwo_bar != 0)
-				{
-					botFourTwo_upperLegLength = 0 * botFourTwo_bodyLength;
-					botFourTwo_upperLegWidth = 0 * botFourTwo_bodyWidth;
-					botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
-					botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
-					botFourTwo_footLength = botFourTwo_lowerLegLength * 0;
-					botFourTwo_ballJointLength = botFourTwo_lowerLegLength * 0;
-					botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
-					botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
-					botFourTwo_bar = 0;
-				}
-				//If legs have disappeared, then fall
-				else
-				{
-					if (botFourTwo_Y >= endHeight)
-					{
-						botFourTwo_Y += fallSpeed;
-						done = false;
-					}
-				}
-			}
-			//If not spun, then spin
-			else
-			{
-				botFourTwo_robotAngle += spinSpeed;
-				done = false;
-			}
-		}
-
-		glutPostRedisplay();
-		//If not all at end of line, continue
-		if (!done)
-			{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); }
-		else
-			{ botFour_collapseOngoing = false; }
-	}
-}
-

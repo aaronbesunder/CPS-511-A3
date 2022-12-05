@@ -207,8 +207,15 @@ GLfloat botThree_robotLeg_mat_diffuse[] = { 0.125f, 0.125f, 0.125f, 0.125f };
 GLfloat botThree_robotLeg_mat_specular[] = { 0.125f, 0.125f, 0.125f, 0.125f };
 GLfloat botThree_robotLeg_mat_shininess[] = { 10.0F };
 
+// BotThree
+GLfloat botThree_startingY = -8.5;
+
 // BotThree: One
 bool botThreeOne_active = true;
+
+GLfloat botThreeOne_X = -10;
+GLfloat botThreeOne_Y = botThree_startingY;
+
 float botThreeOne_rightHipAngle = 45.0;
 float botThreeOne_leftHipAngle = 45.0;
 float botThreeOne_rightKneeAngle = 270.0;
@@ -218,6 +225,10 @@ int botThreeOne_leftWalkIndex = 67;
 
 // BotThree: Two
 bool botThreeTwo_active = true;
+
+GLfloat botThreeTwo_X = 30;
+GLfloat botThreeTwo_Y = botThree_startingY;
+
 float botThreeTwo_rightHipAngle = 45.0;
 float botThreeTwo_leftHipAngle = 45.0;
 float botThreeTwo_rightKneeAngle = 270.0;
@@ -878,6 +889,85 @@ void botThree_walkAnimationHandler(int param)
 			glutTimerFunc(10, botThree_walkAnimationHandler, 0);
 		}
 			
+	}
+}
+
+void botThree_collapseAnimationHandler(int param)
+{
+	if (botThree_collapseOngoing)
+	{
+		bool done = true;
+		float yCollapseSpeed = -0.07;
+		float yEnd = -14;
+		float hipEnd = 75;
+		float kneeEnd = 210;
+
+		// BotThree: One
+		if (!botThreeOne_active)
+		{
+			// Y
+			if (botThreeOne_Y > yEnd)
+				{ botThreeOne_Y += yCollapseSpeed; done = false; }
+
+			// Hip
+			if (botThreeOne_leftHipAngle > hipEnd)
+				{ botThreeOne_leftHipAngle--; done = false; }
+			else if (botThreeOne_leftHipAngle < hipEnd)
+				{ botThreeOne_leftHipAngle++; done = false; }
+
+			if (botThreeOne_rightHipAngle > hipEnd)
+				{ botThreeOne_rightHipAngle--; done = false; }
+			else if (botThreeOne_rightHipAngle < hipEnd)
+				{ botThreeOne_rightHipAngle++; done = false; }
+
+			// Knee
+			if (botThreeOne_leftKneeAngle > kneeEnd)
+				{ botThreeOne_leftKneeAngle--; done = false; }
+			else if (botThreeOne_leftKneeAngle < kneeEnd)
+				{ botThreeOne_leftKneeAngle++; done = false; }
+
+			if (botThreeOne_rightKneeAngle > kneeEnd)
+				{ botThreeOne_rightKneeAngle--; done = false; }
+			else if (botThreeOne_rightKneeAngle < kneeEnd)
+				{ botThreeOne_rightKneeAngle++; done = false; }
+		}
+
+		// BotThree: Two
+		if (!botThreeTwo_active)
+		{
+			// Y
+			if (botThreeTwo_Y > yEnd)
+				{ botThreeTwo_Y += yCollapseSpeed; done = false; }
+
+			// Hip
+			if (botThreeTwo_leftHipAngle > hipEnd)
+				{ botThreeTwo_leftHipAngle--; done = false; }
+			else if (botThreeTwo_leftHipAngle < hipEnd)
+				{ botThreeTwo_leftHipAngle++; done = false; }
+
+			if (botThreeTwo_rightHipAngle > hipEnd)
+				{ botThreeTwo_rightHipAngle--; done = false; }
+			else if (botThreeTwo_rightHipAngle < hipEnd)
+				{ botThreeTwo_rightHipAngle++; done = false; }
+
+			// Knee
+			if (botThreeTwo_leftKneeAngle > kneeEnd)
+				{ botThreeTwo_leftKneeAngle--; done = false; }
+			else if (botThreeTwo_leftKneeAngle < kneeEnd)
+				{ botThreeTwo_leftKneeAngle++; done = false; }
+
+			if (botThreeTwo_rightKneeAngle > kneeEnd)
+				{ botThreeTwo_rightKneeAngle--; done = false; }
+			else if (botThreeTwo_rightKneeAngle < kneeEnd)
+				{ botThreeTwo_rightKneeAngle++; done = false; }
+		}
+
+		glutPostRedisplay();
+		//If not all at end of line, continue
+		if (!done)
+			{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); }
+		else
+			{ botThree_collapseOngoing = false; }
 	}
 }
 

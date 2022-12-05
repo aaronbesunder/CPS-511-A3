@@ -35,6 +35,7 @@ bool botFour_reverse = false;
 bool botFour_firstcheck = false;
 bool botFour_stopmovingupper = false;
 bool botFour_gunStop = false;
+bool botFour_walkcheck = false;
 bool botFour_collapseOngoing = false;
 
 // Functions
@@ -54,7 +55,6 @@ void botFour_drawBody(int botnum);
 void botFour_drawLeftLeg(int botnum);
 void botFour_drawRightLeg(int botnum);
 void botFour_collapseAnimationHandler(int);
-bool botFour_walkcheck = false;
 
 // Lighting/shading and material properties for robot
 GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
@@ -77,8 +77,15 @@ GLfloat botFour_robotLegs_mat_diffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 GLfloat botFour_robotLegs_mat_specular[] = { 0.774597f, 0.774597f, 0.774597f, 1.0f };
 GLfloat botFour_robotLegs_mat_shininess[] = { 76.8F }; 
 
+// BotFour
+GLfloat botFour_startingY = -4;
+
 // BotFour: One
 bool botFourOne_active = true;
+
+GLfloat botFourOne_X = -30;
+GLfloat botFourOne_Y = botFour_startingY;
+
 float botFourOne_bodyWidth = 4.5;
 float botFourOne_bodyLength = 5.5;
 float botFourOne_bodyDepth = 7.0;
@@ -94,6 +101,10 @@ float botFourOne_footDepth = 2.0 * botFourOne_lowerLegWidth;
 
 // BotFour: Two
 bool botFourTwo_active = true;
+
+GLfloat botFourTwo_X = 10;
+GLfloat botFourTwo_Y = botFour_startingY;
+
 float botFourTwo_bodyWidth = 4.5;
 float botFourTwo_bodyLength = 5.5;
 float botFourTwo_bodyDepth = 7.0;
@@ -614,4 +625,94 @@ void botFour_takeRightStep() {
 		}
 	}
 }
+
+void botFour_collapseAnimationHandler(int param)
+{
+	if (botFour_collapseOngoing)
+	{
+		bool done = true;
+		int spinSpeed = 5;
+		int endHeight = -17.4;
+		double fallSpeed = -0.5;
+
+		// BotFour: One
+		if (!botFourOne_active)
+		{
+			if (botFourOne_robotAngle > 360) {
+				//If spun, then make legs disappear
+				if (botFourOne_bar != 0)
+				{
+					botFourOne_upperLegLength = 0 * botFourOne_bodyLength;
+					botFourOne_upperLegWidth = 0 * botFourOne_bodyWidth;
+					botFourOne_lowerLegLength = botFourOne_upperLegLength;
+					botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
+					botFourOne_footLength = botFourOne_lowerLegLength * 0;
+					botFourOne_ballJointLength = botFourOne_lowerLegLength * 0;
+					botFourOne_footWidth = 0 * botFourOne_lowerLegWidth;
+					botFourOne_footDepth = 0 * botFourOne_lowerLegWidth;
+					botFourOne_bar = 0;
+					done = false;
+				}
+				//If legs have disappeared, then fall
+				else
+				{
+					if (botFourOne_Y >= endHeight)
+					{
+						botFourOne_Y += fallSpeed;
+						done = false;
+					}
+				}
+			}
+			//If not spun, then spin
+			else
+			{ 
+				botFourOne_robotAngle += spinSpeed;
+				done = false; 
+			}
+		}
+
+		// BotFour: Two
+		if (!botFourTwo_active)
+		{
+			if (botFourTwo_robotAngle > 360) {
+				//If spun, then make legs disappear
+				if (botFourTwo_bar != 0)
+				{
+					botFourTwo_upperLegLength = 0 * botFourTwo_bodyLength;
+					botFourTwo_upperLegWidth = 0 * botFourTwo_bodyWidth;
+					botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
+					botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
+					botFourTwo_footLength = botFourTwo_lowerLegLength * 0;
+					botFourTwo_ballJointLength = botFourTwo_lowerLegLength * 0;
+					botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
+					botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
+					botFourTwo_bar = 0;
+				}
+				//If legs have disappeared, then fall
+				else
+				{
+					if (botFourTwo_Y >= endHeight)
+					{
+						botFourTwo_Y += fallSpeed;
+						done = false;
+					}
+				}
+			}
+			//If not spun, then spin
+			else
+			{
+				botFourTwo_robotAngle += spinSpeed;
+				done = false;
+			}
+		}
+
+		glutPostRedisplay();
+		//If not all at end of line, continue
+		if (!done)
+			{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); }
+		else
+			{ botFour_collapseOngoing = false; }
+	}
+}
+
 #pragma once
