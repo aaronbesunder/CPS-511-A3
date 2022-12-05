@@ -21,6 +21,18 @@
     <ClInclude Include="..\..\..\OneDrive\Documents\School\Year 4\Fall 2022\CPS511\HierarchicalRobotExample\VECTOR3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BotFour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BotThree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cannon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuadMesh.cpp">
