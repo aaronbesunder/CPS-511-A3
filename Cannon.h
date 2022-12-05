@@ -312,14 +312,17 @@ void cannon_projectileAnimationHandler(int param)
 
 			float toRad = M_PI / 180;
 
+
 			float xAng = arrayGet(&projectile_Xang, index);
 			float yAng = arrayGet(&projectile_Yang, index);
 			float xPos = arrayGet(&projectile_Xpos, index);
 			float yPos = arrayGet(&projectile_Ypos, index);
 			float zPos = arrayGet(&projectile_Zpos, index); 
 
+			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22;
+
 			float addX = sin(-xAng * toRad) * cannon_projectileSpeed;
-			float addY = sin(yAng * toRad) * cannon_projectileSpeed;
+			float addY = sin((yAng + addCannonY) * toRad) * cannon_projectileSpeed;
 			float addZ = cannon_projectileSpeed;
 
 			arrayAdd(&projectile_Xpos, index, addX);
