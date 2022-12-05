@@ -1,5 +1,7 @@
 ﻿#include "Array.h"
 #include "Window.h"
+//#include <math.h>
+#include <corecrt_math_defines.h>
 
 // -----------------
 // --- Variables ---
@@ -288,29 +290,30 @@ void cannon_projectileAnimationHandler(int param)
 	{
 		for (int index = 0; index < projectile_Xpos.size; index++)
 		{
-			//        /|
-			// speed /θ|
-			//      /  |  CAH SOH
-			//     /   |
-			//     ‾‾‾‾‾ X/Y/Z
+
+			//     X/Y/Z
+			//     _____
+			//    |    /
+			//    |   /                           Opp   X/Y/Z
+			//    |  / Speed      SOH -> Sin(θ) = --- = -----  -> X/Y/Z = Sin(θ) * Speed
+			//    |θ/                             Hyp   Speed
+			//    |/
+			//   /|
+			//  / | Cannon
+			//  ‾‾
+
+			float toRad = M_PI / 180;
+
 			float xAng = arrayGet(&projectile_Xang, index);
 			float yAng = arrayGet(&projectile_Yang, index);
 			float xPos = arrayGet(&projectile_Xpos, index);
 			float yPos = arrayGet(&projectile_Ypos, index);
 			float zPos = arrayGet(&projectile_Zpos, index); 
 
-			/*float addX = cannon_projectileSpeed / cos(xAng);
-			float addY = cannon_projectileSpeed / cos(yAng);
-			float addZ = cannon_projectileSpeed / cos(0);*/
-			/*float addX = cannon_projectileSpeed / sin(yAng);
-			float addY = cannon_projectileSpeed / sin(xAng);
-			float addZ = cannon_projectileSpeed / cos(0);*/
-			float addX = cannon_projectileSpeed;
-			float addY = cannon_projectileSpeed;
+			float addX = sin(-xAng * toRad) * cannon_projectileSpeed;
+			float addY = sin(yAng * toRad) * cannon_projectileSpeed;
 			float addZ = cannon_projectileSpeed;
-			/*float addX = cos(yAng) * cannon_projectileSpeed;
-			float addY = cos(xAng) * cannon_projectileSpeed;
-			float addZ = cos(0) * cannon_projectileSpeed;*/
+
 			arrayAdd(&projectile_Xpos, index, addX);
 			arrayAdd(&projectile_Ypos, index, addY);
 			arrayAdd(&projectile_Zpos, index, addZ);
