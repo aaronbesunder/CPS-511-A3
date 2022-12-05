@@ -179,7 +179,7 @@ void drawDefensiveCannon()
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
 
 		// Transformations
-		glTranslatef(0, -10.0, 45);
+		glTranslatef(0, -15.0, 45);
 		glRotatef(-70, 1, 0, 0);
 
 		// Rotate according to use mouse input
@@ -194,8 +194,8 @@ void drawDefensiveCannon()
 		// Draw elements
 		generateBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cannon_indexVboID);
-		//glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
-		glDrawElements(GL_LINE_LOOP, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_QUADS, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
+		//glDrawElements(GL_LINE_LOOP, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
 		deleteBuffers();
 	glPopMatrix();
 }
@@ -225,7 +225,7 @@ void drawCannonProjectile(int index)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
 
 		glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
-		glTranslatef(0.0, -10, 40 + projectile_depth);
+		glTranslatef(0.0, -15, 40 + projectile_depth);
 
 
 		//// Rotate according to use mouse input
@@ -322,12 +322,12 @@ void cannon_projectileAnimationHandler(int param)
 			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22;
 
 			//float addX = cos(-xAng * toRad) * cannon_projectileSpeed;
-			float addX = tan(-xAng * toRad) * cannon_projectileSpeed;
-			float addY = sin((yAng + addCannonY) * toRad) * cannon_projectileSpeed;
+			float addX = (tan(-xAng * toRad) * cannon_projectileSpeed);
+			float addY = (sin((yAng + addCannonY) * toRad) * cannon_projectileSpeed);
 			float addZ = cannon_projectileSpeed;
 
-			arrayAdd(&projectile_Xpos, index, addX);
-			arrayAdd(&projectile_Ypos, index, addY);
+			arrayAdd(&projectile_Xpos, index, (addX*0.94));
+			arrayAdd(&projectile_Ypos, index, (addY*0.65));
 			arrayAdd(&projectile_Zpos, index, addZ);
 
 			// Remove if reached farplane
