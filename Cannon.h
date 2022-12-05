@@ -321,7 +321,8 @@ void cannon_projectileAnimationHandler(int param)
 
 			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22;
 
-			float addX = sin(-xAng * toRad) * cannon_projectileSpeed;
+			//float addX = cos(-xAng * toRad) * cannon_projectileSpeed;
+			float addX = tan(-xAng * toRad) * cannon_projectileSpeed;
 			float addY = sin((yAng + addCannonY) * toRad) * cannon_projectileSpeed;
 			float addZ = cannon_projectileSpeed;
 

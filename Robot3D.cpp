@@ -195,7 +195,7 @@ void display(void)
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 30) looking at the origin, up along positive y axis
 	//gluLookAt(0.0, 6.0, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
+	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
 
 	//Ground Level
 	//gluLookAt(0.0, -19.9, 30.0, 0.0, -19.9, 0.0, 0.0, 1.0, 0.0);
@@ -204,7 +204,7 @@ void display(void)
 	//gluLookAt(0.0, -15.5, 60, 0.0, -10.5, 0.0, 0.0, 1.0, 0.0);
 
 	//Cannon Side View
-	gluLookAt(-20, -10.5, 45.0, 0.0, -10.5, 45, 0.0, 1.0, 0.0);
+	//gluLookAt(-20, -10.5, 45.0, 0.0, -10.5, 45, 0.0, 1.0, 0.0);
 
 	// Defensive Cannon
 	drawDefensiveCannon();
@@ -756,6 +756,9 @@ void mouseMotionHandler(int xMouse, int yMouse)
 
 		// Cannon Rotate Y: Update Prev
 		mouse_prevY = yMouse;
+
+		// For testing
+		//cannon_rotateY = 0;
 
 		glutPostRedisplay();
 	}
