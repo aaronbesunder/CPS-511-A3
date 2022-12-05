@@ -80,9 +80,7 @@ bool botFour_reverse = false;
 bool botFour_firstcheck = false;
 bool botFour_stopmovingupper = false;
 bool botFour_gunStop = false;
-bool collapseStop1 = false;
-bool collapseStop2 = false;
-unsigned int botCollapseCount = 0;
+bool botFour_collapseOngoing = false;
 
 // Functions
 void botFour_animateUpperLegUp();
@@ -96,13 +94,12 @@ void botFour_animateLowerRightLegDown();
 void botFour_gunHandler(int param);
 void botFour_takeStep();
 void botFour_takeRightStep();
-void botFourOne_collapse();
-void botFourTwo_collapse();
 void botFour_drawRobot(int botnum);
 void botFour_drawBody(int botnum);
 void botFour_drawLeftLeg(int botnum);
 void botFour_drawRightLeg(int botnum);
-bool walkcheck = false;
+void botFour_collapseAnimationHandler(int);
+bool botFour_walkcheck = false;
 
 // Lighting/shading and material properties for robot
 GLfloat botFour_robotBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
@@ -335,12 +332,13 @@ GLfloat botThree_robotLeg_mat_shininess[] = { 10.0F };
 // --- Bot Instances ---
 // ---------------------
 
-GLfloat botThree_startingY = -8.5;
-GLfloat botFourOne_Y = -4;
-GLfloat botFourTwo_Y = -4;
+unsigned int botCollapseCount = 0;
 
-GLfloat startingZ = -75;
-GLfloat endingZ = 0;
+GLfloat botThree_startingY = -8.5;
+GLfloat botFour_startingY = -4;
+
+GLfloat startingZ = -200;
+GLfloat endingZ = -5;
 
 // BotThree: One
 bool botThreeOne_active = true;
@@ -369,11 +367,13 @@ int botThreeTwo_leftWalkIndex = 67;
 // BotFour: One
 bool botFourOne_active = true;
 GLfloat botFourOne_X = -30;
+GLfloat botFourOne_Y = botFour_startingY;
 GLfloat botFourOne_Z = startingZ;
 
 // BotFour: Two
 bool botFourTwo_active = true;
 GLfloat botFourTwo_X = 10;
+GLfloat botFourTwo_Y = botFour_startingY;
 GLfloat botFourTwo_Z = startingZ;
 
 
@@ -428,7 +428,7 @@ const int vWidth = 650;		// Viewport width in pixels
 const int vHeight = 500;	// Viewport height in pixels
 
 GLdouble nearPlane = 0.10;	// 0.2		0.10
-GLdouble farPlane = 150.0;	// 40.0		100.0
+GLdouble farPlane = 250.0;	// 40.0		100.0
 
 GLdouble eyeX = 0;
 GLdouble eyeY = -5;
@@ -460,7 +460,7 @@ typedef struct BoundingBox {
 } BBox;
 
 // Default Mesh Size
-int meshSize = 16;
+int meshSize = 16; //Default: 16
 
 // Prototypes for functions in this module
 void initOpenGL(int w, int h);
@@ -529,11 +529,16 @@ void initOpenGL(int w, int h)
 
 	// Other initializatuion
 	// Set up ground quad mesh
-	VECTOR3D origin = VECTOR3D(-16.0f, 0.0f, 16.0f);
+	float groundSize = 400.0f;
+	float halfGroundSize = groundSize / 2;
+	VECTOR3D origin = VECTOR3D(-halfGroundSize, 0.0f, halfGroundSize/4);
 	VECTOR3D dir1v = VECTOR3D(1.0f, 0.0f, 0.0f);
 	VECTOR3D dir2v = VECTOR3D(0.0f, 0.0f, -1.0f);
-	groundMesh = new QuadMesh(meshSize, 32.0);
-	groundMesh->InitMesh(meshSize, origin, 32.0, 32.0, dir1v, dir2v);
+	groundMesh = new QuadMesh(meshSize, groundSize);
+	groundMesh->InitMesh(meshSize, origin, groundSize, groundSize, dir1v, dir2v);
+	//VECTOR3D origin = VECTOR3D(-16.0f, 0.0f, 16.0f);
+	//groundMesh = new QuadMesh(meshSize, 32.0);
+	//groundMesh->InitMesh(meshSize, origin, 32.0, 32.0, dir1v, dir2v);
 
 	VECTOR3D ambient = VECTOR3D(0.0f, 0.05f, 0.0f);
 	VECTOR3D diffuse = VECTOR3D(0.4f, 0.8f, 0.4f);
@@ -1986,16 +1991,19 @@ void drawRightText()
 		float b = 255;
 		glColor3f(r, g, b);
 		glRasterPos2f(x, y);
-		char str[400] = "";
+		char str[1000] = "";
 		if (help != true)
 		{
 			sprintf_s(str, "");
 		}
 		else
 		{
-			sprintf_s(str, "Robot Angle: %0.1f\n\nBotThree Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f", 
-				botThree_robotAngle, botThree_bodyAngle, botThreeOne_rightHipAngle, botThreeOne_rightKneeAngle, 
-				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle, rotateSpeed);
+			sprintf_s(str, "Robot Angle: %0.1f\n\nBotThree: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotThree: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: One Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nBotFour: Two Angles\n   Body: %0.1f\n   Hip: %0.1f\n   Knee: %0.1f\n\nRotation Speed: %0.1f", 
+				botThree_robotAngle, botThree_bodyAngle, botThreeOne_rightHipAngle, botThreeOne_rightKneeAngle,
+				botThree_bodyAngle, botThreeTwo_rightHipAngle, botThreeTwo_rightKneeAngle,
+				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle, 
+				botFour_bodyAngle, botFour_leftHipAngle, botFour_leftKneeAngle,
+				rotateSpeed);
 		}
 		glutBitmapString(GLUT_BITMAP_HELVETICA_12, reinterpret_cast<const unsigned char*>
 			(str));
@@ -2253,6 +2261,31 @@ void keyboard(unsigned char key, int x, int y)
 		botFour_stopmovingupper = false;
 		botFour_gunStop = false;
 
+		botFourOne_robotAngle = 0;
+		botFourOne_upperLegLength = 0.95 * botFourOne_bodyLength;
+		botFourOne_upperLegWidth = 0.125 * botFourOne_bodyWidth;
+		botFourOne_lowerLegLength = botFourOne_upperLegLength;
+		botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
+		botFourOne_footLength = botFourOne_lowerLegLength / 3.0;
+		botFourOne_ballJointLength = botFourOne_lowerLegLength / 5.0;
+		botFourOne_footWidth = 2.0 * botFourOne_lowerLegWidth;
+		botFourOne_bar = 1.6 * botFourOne_bodyWidth;
+		botFourOne_footDepth = 2.0 * botFourOne_lowerLegWidth;
+
+		botFourTwo_robotAngle = 0;
+		botFourTwo_upperLegLength = 0.95 * botFourTwo_bodyLength;
+		botFourTwo_upperLegWidth = 0.125 * botFourTwo_bodyWidth;
+		botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
+		botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
+		botFourTwo_footLength = botFourTwo_lowerLegLength / 3.0;
+		botFourTwo_ballJointLength = botFourTwo_lowerLegLength / 5.0;
+		botFourTwo_footWidth = 2.0 * botFourTwo_lowerLegWidth;
+		botFourTwo_bar = 1.6 * botFourTwo_bodyWidth;
+		botFourTwo_footDepth = 2.0 * botFourTwo_lowerLegWidth;
+
+		botFour_collapseOngoing = false;
+		botFour_walkcheck = false;
+
 		// Bot Three
 		botThree_robotAngle = 0.0;
 		botThree_cannonAngle = 0.0;
@@ -2284,8 +2317,10 @@ void keyboard(unsigned char key, int x, int y)
 		botThreeTwo_Z = startingZ;
 
 		botFourOne_active = true;
+		botFourOne_Y = botFour_startingY;
 		botFourOne_Z = startingZ;
 		botFourTwo_active = true;
+		botFourTwo_Y = botFour_startingY;
 		botFourTwo_Z = startingZ;
 		break;
 
@@ -2378,63 +2413,55 @@ void translateAnimationHandler(int param)
 	}
 
 	// Walk Cycle: Bot Four
-	if (walkcheck == false) {
+	if (botFour_walkcheck == false) {
 		glutIdleFunc(botFour_takeStep);
-		walkcheck = true;
+		botFour_walkcheck = true;
 	}
-	
-	
 	
 	// Update Z
 	double speed = 0.2;
-	bool collapse = false;
-	bool collapse2 = false;
+	bool threeCollapse = false;
+	bool fourCollapse = false;
 
 	if (botThreeOne_active)
 	{
 		botThreeOne_Z += speed;
 		if (botThreeOne_Z >= endingZ)
-			{ botThreeOne_active = false; collapse = true; }
+			{ botThreeOne_active = false; threeCollapse = true; }
 	}
 	if (botThreeTwo_active)
 	{
 		botThreeTwo_Z += speed;
 		if (botThreeTwo_Z >= endingZ)
-			{ botThreeTwo_active = false; collapse = true; }
+			{ botThreeTwo_active = false; threeCollapse = true; }
 	}
 
 	if (botFourOne_active)
 	{
 		botFourOne_Z += speed;
 		if (botFourOne_Z >= endingZ)
-		{
-			botFourOne_active = false; collapse = true; botFour_stop = true; 
-		}
+			{ botFourOne_active = false; botFour_stop = true; fourCollapse = true; }
 	}
 	if (botFourTwo_active)
 	{
 		botFourTwo_Z += speed;
 		if (botFourTwo_Z >= endingZ)
-		{
-			botFourTwo_active = false; collapse = true; botFour_stop = true; collapse2 = true;
-		}
+			{ botFourTwo_active = false; botFour_stop = true; fourCollapse = true; }
 	}
 
 	glutPostRedisplay();
+
+	//If botThree becomes inactive, collapse
+	if ((threeCollapse) && (!botThree_collapseOngoing))
+		{ glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true; }
+	
+	//If botFour becomes inactive, collapse
+	if (fourCollapse) 
+		{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); botFour_collapseOngoing = true; }
+
 	//If not all at end of line, continue
 	if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
 		{ glutTimerFunc(10, translateAnimationHandler, 0); }
-
-	//If becomes inactive, collapse
-	if ((collapse) && (!botThree_collapseOngoing))
-	{
-		glutTimerFunc(10, botThree_collapseAnimationHandler, 0); botThree_collapseOngoing = true;  
-		
-	}
-	if (collapse2) {
-		glutIdleFunc(botFourOne_collapse);
-		//glutIdleFunc(botFourTwo_collapse);
-	}
 }
 
 void botThree_collapseAnimationHandler(int param)
@@ -2515,55 +2542,93 @@ void botThree_collapseAnimationHandler(int param)
 			{ botThree_collapseOngoing = false; }
 	}
 }
-void botFourOne_collapse() {
-	if (!collapseStop1) {
 
-		botFourOne_robotAngle += 1;
-		if (botFourOne_robotAngle > 360) {
-			botFourOne_upperLegLength = 0 * botFourOne_bodyLength;
-			botFourOne_upperLegWidth = 0 * botFourOne_bodyWidth;
-			botFourOne_lowerLegLength = botFourOne_upperLegLength;
-			botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
-			botFourOne_footLength = botFourOne_lowerLegLength * 0;
-			botFourOne_ballJointLength = botFourOne_lowerLegLength * 0;
-			botFourOne_footWidth = 0 * botFourOne_lowerLegWidth;
-			botFourOne_footDepth = 0 * botFourOne_lowerLegWidth;
-			botFourOne_bar = 0;
-			collapseStop1 = true;
+void botFour_collapseAnimationHandler(int param)
+{
+	if (botFour_collapseOngoing)
+	{
+		bool done = true;
+		int spinSpeed = 4;
+		int endHeight = -17.4;
+		double fallSpeed = -0.5;
+
+		// BotFour: One
+		if (!botFourOne_active)
+		{
+			if (botFourOne_robotAngle > 360) {
+				//If spun, then make legs disappear
+				if (botFourOne_bar != 0)
+				{
+					botFourOne_upperLegLength = 0 * botFourOne_bodyLength;
+					botFourOne_upperLegWidth = 0 * botFourOne_bodyWidth;
+					botFourOne_lowerLegLength = botFourOne_upperLegLength;
+					botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
+					botFourOne_footLength = botFourOne_lowerLegLength * 0;
+					botFourOne_ballJointLength = botFourOne_lowerLegLength * 0;
+					botFourOne_footWidth = 0 * botFourOne_lowerLegWidth;
+					botFourOne_footDepth = 0 * botFourOne_lowerLegWidth;
+					botFourOne_bar = 0;
+					done = false;
+				}
+				//If legs have disappeared, then fall
+				else
+				{
+					if (botFourOne_Y >= endHeight)
+					{
+						botFourOne_Y += fallSpeed;
+						done = false;
+					}
+				}
+			}
+			//If not spun, then spin
+			else
+			{ 
+				botFourOne_robotAngle += spinSpeed;
+				done = false; 
+			}
 		}
-	}
-	if (collapseStop1) {
-		if (botFourOne_Y >= -20) {
-			botFourOne_Y -= 0.5;
+
+		// BotFour: Two
+		if (!botFourTwo_active)
+		{
+			if (botFourTwo_robotAngle > 360) {
+				//If spun, then make legs disappear
+				if (botFourTwo_bar != 0)
+				{
+					botFourTwo_upperLegLength = 0 * botFourTwo_bodyLength;
+					botFourTwo_upperLegWidth = 0 * botFourTwo_bodyWidth;
+					botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
+					botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
+					botFourTwo_footLength = botFourTwo_lowerLegLength * 0;
+					botFourTwo_ballJointLength = botFourTwo_lowerLegLength * 0;
+					botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
+					botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
+					botFourTwo_bar = 0;
+				}
+				//If legs have disappeared, then fall
+				else
+				{
+					if (botFourTwo_Y >= endHeight)
+					{
+						botFourTwo_Y += fallSpeed;
+						done = false;
+					}
+				}
+			}
+			//If not spun, then spin
+			else
+			{
+				botFourTwo_robotAngle += spinSpeed;
+				done = false;
+			}
 		}
+
+		glutPostRedisplay();
+		//If not all at end of line, continue
+		if (!done)
+			{ glutTimerFunc(10, botFour_collapseAnimationHandler, 0); }
+		else
+			{ botFour_collapseOngoing = false; }
 	}
-	botFourTwo_collapse();
-
-}
-void botFourTwo_collapse() {
-	if (!collapseStop2) {
-
-		botFourTwo_robotAngle += 1;
-		if (botFourTwo_robotAngle > 360) {
-			botFourTwo_upperLegLength = 0 * botFourTwo_bodyLength;
-			botFourTwo_upperLegWidth = 0 * botFourTwo_bodyWidth;
-			botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
-			botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
-			botFourTwo_footLength = botFourTwo_lowerLegLength * 0;
-			botFourTwo_ballJointLength = botFourTwo_lowerLegLength * 0;
-			botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
-			botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
-			botFourTwo_bar = 0;
-			collapseStop2 = true;
-		}
-	}
-	if (collapseStop2) {
-		if (botFourTwo_Y >= -15) {
-			botFourTwo_Y -= 0.5;
-		}
-	}
-
-	glutPostRedisplay();
-
 }
 
