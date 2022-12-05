@@ -18,6 +18,7 @@
 
 #include "VECTOR3D.h"
 #include "QuadMesh.h"
+#include "Window.h"
 #include "BotThree.h"
 #include "BotFour.h"
 #include "Cannon.h"
@@ -53,27 +54,6 @@ void drawHelp();
 void drawLeftText();
 void drawRightText();
 void drawCoordinates();
-
-// --------------
-// --- Window ---
-// --------------
-
-const int vWidth = 650;		// Viewport width in pixels
-const int vHeight = 500;	// Viewport height in pixels
-
-GLdouble nearPlane = 0.10;	// 0.2		0.10
-GLdouble farPlane = 250.0;	// 40.0		100.0
-
-GLdouble eyeX = 0;
-GLdouble eyeY = -5;
-GLdouble eyeZ = 50;
-
-GLdouble centerX = 0;
-GLdouble centerY = -20.0;
-GLdouble centerZ = 0;
-
-GLfloat mouse_prevX;
-GLfloat mouse_prevY;
 
 // -------------------------------------------------------
 
@@ -222,7 +202,8 @@ void display(void)
 
 	// Defensive Cannon
 	drawDefensiveCannon();
-	drawCannonProjectile();
+	for (int index = 0; index < projectile_Xpos.size; index++)
+		{drawCannonProjectile(index);};
 
 	// Draw Robots
 	
@@ -240,8 +221,13 @@ void display(void)
 
 	// Draw ground
 	glPushMatrix();
-	glTranslatef(0.0, -20.0, 0.0);
-	groundMesh->DrawMesh(meshSize);
+		glTranslatef(0.0, -20.0, 0.0);
+		groundMesh->DrawMesh(meshSize);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(0, -10.0, 2);
+		//glutSolidCube(10);
 	glPopMatrix();
 
 	glutSwapBuffers();   // Double buffering, swap buffers
@@ -669,6 +655,9 @@ void keyboard(unsigned char key, int x, int y)
 			botsMoving = true;
 			glutTimerFunc(10, translateAnimationHandler, 0);
 		}
+		break;
+	case 32: //Space
+		addCannonProjectile();
 		break;
 	}
 

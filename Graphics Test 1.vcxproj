@@ -169,6 +169,7 @@
     <ClInclude Include="BotFour.h" />
     <ClInclude Include="BotThree.h" />
     <ClInclude Include="Cannon.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuadMesh.cpp" />

@@ -1,3 +1,6 @@
+﻿#include "Array.h"
+#include "Window.h"
+
 // -----------------
 // --- Variables ---
 // -----------------
@@ -19,6 +22,12 @@ GLdouble* cannon_vertexNormalVao;
 GLuint* cannon_quadIndicesVao;
 static GLuint cannontexture;
 
+// Projectile
+bool cannon_projectileExists = false;
+void cannon_projectileAnimationHandler(int);
+float cannon_projectileSpeed = 0.1;
+float cannon_projectileStartZ = 45;
+
 // Projectile Dimensions
 float projectile_height = 0.3;
 float projectile_width = 0.3;
@@ -30,18 +39,25 @@ GLfloat cannonMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
 GLfloat cannonMat_diffuse[] = { 0.2f, 0.2f, 0.2f, 0.2f };
 GLfloat cannonMat_shininess[] = { 5.0F };
 
-//Projectile
+// Projectile
 GLfloat projectileMat_ambient[] = { 0.0, 1.0, 0.0, 1.0 };
 GLfloat projectileMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
 GLfloat projectileMat_diffuse[] = { 0.1f, 0.1f, 0.1, 0.2f };
 GLfloat projectileMat_shininess[] = { 5.0F };
 
-//Functions
+// Functions
 void generateBuffers();
 void deleteBuffers();
 void drawDefensiveCannon();
 void exportCannonMesh();
-void drawCannonProjectile();
+void drawCannonProjectile(int);
+
+//Projectile Arrays
+arrayClass projectile_Ypos{};
+arrayClass projectile_Xpos{};
+arrayClass projectile_Zpos{}; // Distance
+arrayClass projectile_Yang{};
+arrayClass projectile_Xang{};
 
 // ------------
 // --- Draw ---
@@ -181,15 +197,40 @@ void drawDefensiveCannon()
 	glPopMatrix();
 }
 
-void drawCannonProjectile()
+void drawCannonProjectile(int index)
 {
+	// Instantiate arrays if needed
+	if (projectile_Xpos.size == 0)
+	{
+		initArray(&projectile_Xpos);
+		initArray(&projectile_Ypos);
+		initArray(&projectile_Zpos);
+		initArray(&projectile_Xang);
+		initArray(&projectile_Yang);
+	}
+
+	float xAng = arrayGet(&projectile_Xang, index);
+	float yAng = arrayGet(&projectile_Yang, index);
+	float xPos = arrayGet(&projectile_Xpos, index);
+	float yPos = arrayGet(&projectile_Ypos, index);
+	float zPos = arrayGet(&projectile_Zpos, index);
+
 	glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
 
-		glRotatef(botThree_robotAngle, 0.0, 1.0, 0.0);
+		glTranslatef(xPos, yPos, -zPos);
+		//glTranslatef(0, 0, -z);
+		glTranslatef(0, -10.0, 40);
+
+		//// Rotate according to use mouse input
+		//Y
+		glRotatef(yAng, 1, 0, 0);
+
+		//X
+		glRotatef(xAng, 0, 1, 0);
 
 		//glScalef(x, y, z);
 		glScalef(projectile_width, projectile_height, projectile_depth);
@@ -200,6 +241,88 @@ void drawCannonProjectile()
 		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
 		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
 	glPopMatrix();
+}
+
+void addCannonProjectile()
+{
+	// Instantiate arrays if needed
+	if (projectile_Xpos.size == 0)
+	{
+		initArray(&projectile_Xpos);
+		initArray(&projectile_Ypos);
+		initArray(&projectile_Zpos);
+		initArray(&projectile_Xang);
+		initArray(&projectile_Yang);
+	}
+
+	arrayInsert(&projectile_Xang, cannon_rotateX);
+	arrayInsert(&projectile_Yang, cannon_rotateY);
+
+	arrayInsert(&projectile_Xpos, 0);
+	arrayInsert(&projectile_Ypos, 0);
+	arrayInsert(&projectile_Zpos, 0);
+
+	/*int size = projectile_Ypos.size - 1;
+	printf("Inserted %f %f %f\n", projectile_Xpos.array[size], projectile_Ypos.array[size], projectile_Zpos.array[size]);*/
+
+	printf("Angle:\n");
+	printArray(&projectile_Xang);
+	printArray(&projectile_Yang);
+	printf("Position:\n");
+	printArray(&projectile_Xpos);
+	printArray(&projectile_Ypos);
+	printArray(&projectile_Zpos);
+	printf("\n");
+
+	if (cannon_projectileExists == false)
+	{
+		cannon_projectileExists = true;
+		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+	}
+
+}
+
+void cannon_projectileAnimationHandler(int param)
+{
+	if (cannon_projectileExists)
+	{
+		for (int index = 0; index < projectile_Xpos.size; index++)
+		{
+			//        /|
+			// speed /θ|
+			//      /  |  CAH SOH
+			//     /   |
+			//     ‾‾‾‾‾ X/Y/Z
+			float xAng = arrayGet(&projectile_Xang, index);
+			float yAng = arrayGet(&projectile_Yang, index);
+			float xPos = arrayGet(&projectile_Xpos, index);
+			float yPos = arrayGet(&projectile_Ypos, index);
+			float zPos = arrayGet(&projectile_Zpos, index); 
+
+			/*float addX = cannon_projectileSpeed / cos(xAng);
+			float addY = cannon_projectileSpeed / cos(yAng);
+			float addZ = cannon_projectileSpeed / cos(0);*/
+			/*float addX = cannon_projectileSpeed / sin(yAng);
+			float addY = cannon_projectileSpeed / sin(xAng);
+			float addZ = cannon_projectileSpeed / cos(0);*/
+			float addX = cannon_projectileSpeed;
+			float addY = cannon_projectileSpeed;
+			float addZ = cannon_projectileSpeed;
+			/*float addX = cos(yAng) * cannon_projectileSpeed;
+			float addY = cos(xAng) * cannon_projectileSpeed;
+			float addZ = cos(0) * cannon_projectileSpeed;*/
+			arrayAdd(&projectile_Xpos, index, addX);
+			arrayAdd(&projectile_Ypos, index, addY);
+			arrayAdd(&projectile_Zpos, index, addZ);
+
+			// Remove if reached farplane
+			/*if (arrayGet(&projectile_Zpos, index) <= farPlane)
+				{ arrayRemove(&projectile_Zpos, index); }*/
+		}
+
+		glutPostRedisplay();
+		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+	}
 }
 
 #pragma once

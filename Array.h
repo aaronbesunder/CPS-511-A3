@@ -2,15 +2,15 @@
 #include <stdio.h>
 
 typedef struct {
-	double* array;
+	float* array;
 	size_t size;
 } arrayClass;
 
 void initArray(arrayClass* a) {
 
-	double* int_pointer;
+	float* int_pointer;
 
-	int_pointer = (double*)malloc(sizeof(double));
+	int_pointer = (float*)malloc(sizeof(float));
 
 	if (int_pointer == NULL)
     {       
@@ -26,12 +26,29 @@ void initArray(arrayClass* a) {
 
 }
 
+float* arrayGetArray(arrayClass* a)
+{
+    return a->array;
+}
+
+int arrayGetSize(arrayClass* a)
+{
+    return a->size;
+}
+
+void arrayFree(arrayClass* a)
+{
+    free(a->array);
+    a->array = NULL;
+    a->size = 0;
+}
+
 void arrayInsert(arrayClass* a, int item)
 {
     a->size += 1;
 
-    double* tempPointer;
-    tempPointer = (double*)realloc(a->array, a->size * sizeof(double));
+    float* tempPointer;
+    tempPointer = (float*)realloc(a->array, a->size * sizeof(float));
 
     if (tempPointer == NULL)
     {
@@ -46,11 +63,10 @@ void arrayInsert(arrayClass* a, int item)
     }
 }
 
-/* Delete from a dynamic array */
 void arrayRemove(arrayClass* a, int index)
 {
-    arrayClass tempArray;
-    double* tempPointer;
+    arrayClass tempArray{};
+    float *tempPointer;
 
     initArray(&tempArray);
 
@@ -69,9 +85,9 @@ void arrayRemove(arrayClass* a, int index)
     }
 
     // Set pointer
-    tempPointer = (double*)realloc(tempArray.array, tempArray.size * sizeof(double));
+    tempPointer = (float*)realloc(arrayGetArray(&tempArray), arrayGetSize(&tempArray) * sizeof(float));
 
-    if (tempPointer == NULL)
+    /*if (tempPointer == NULL)
     {
         printf("Unable to reallocate memory.\n");
         free(tempPointer);
@@ -80,14 +96,28 @@ void arrayRemove(arrayClass* a, int index)
     else
     {
         a->array = tempPointer;
-    }
+    }*/
+    a->array = arrayGetArray(&tempArray);
 }
 
-/* Free an array */
-void arrayFree(arrayClass* a)
+void arrayAdd(arrayClass* a, int index, float newVal)
 {
-    free(a->array);
-    a->array = NULL;
-    a->size = 0;
+    float currentVal = a->array[index];
+    a->array[index] = currentVal + newVal;
+}
+
+float arrayGet(arrayClass* a, int index)
+{
+    return a->array[index];
+}
+
+void printArray(arrayClass* a)
+{
+    printf("Array: ");
+    for (int i = 0; i < a->size; i++)
+    {
+        printf(" %f", a->array[i]);
+    }
+    printf("\n");
 }
 #pragma once
