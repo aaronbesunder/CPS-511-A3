@@ -4,8 +4,27 @@
 #include "Window.h"
 #include <corecrt_math_defines.h>
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <dos.h> 
+#include <string.h>
+#include <math.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <gl/glut.h>
+#include <utility>
+#include <vector>
+#include <GL\freeglut_ext.h>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <string.h>
+
 #include "Bot.h"
 bool bot_checkBotCollision(float, float, float);
+#include "Help.h"
+void drawCollisionBox(float, float, float, float, float, float);
 
 // -----------------
 // --- Variables ---
@@ -38,6 +57,7 @@ float cannon_collisionMaxZ;
 float cannon_collisionMinZ;
 void cannon_updateCollisionBoxes();
 bool cannon_checkCollision(float, float, float);
+void cannon_drawCollisionBox();
 
 // Cannon Shake
 bool cannon_active = true;
@@ -228,6 +248,14 @@ void drawDefensiveCannon()
 		//glDrawElements(GL_LINE_LOOP, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
 		deleteBuffers();
 	glPopMatrix();
+
+	//Draw where collison box is
+	cannon_updateCollisionBoxes();
+	drawCollisionBox(
+		cannon_collisionMinX, cannon_collisionMaxX, 
+		cannon_collisionMinY, cannon_collisionMaxY, 
+		cannon_collisionMinZ, cannon_collisionMaxZ
+	);
 }
 
 // ------------------------
@@ -237,12 +265,16 @@ void drawDefensiveCannon()
 void cannon_updateCollisionBoxes()
 {
 	// Cannon
-	cannon_collisionMaxX = cannon_xPos + 5;
-	cannon_collisionMinX = cannon_xPos - 5;
-	cannon_collisionMaxY = -18 + 5;
-	cannon_collisionMinY = -18 - 5;
-	cannon_collisionMaxZ = 45 + 5;
-	cannon_collisionMinZ = 45 - 5;
+	float xDelta = 4;
+	float yDelta = 2;
+	float zDelta = 2;
+
+	cannon_collisionMaxX = cannon_xPos + xDelta;
+	cannon_collisionMinX = cannon_xPos - xDelta;
+	cannon_collisionMaxY = -18 + yDelta;
+	cannon_collisionMinY = -18 - yDelta;
+	cannon_collisionMaxZ = 45 + zDelta - 1;
+	cannon_collisionMinZ = 45 - zDelta - 1;
 }
 
 bool cannon_checkCollision(float xPos, float yPos, float zPos)
@@ -344,7 +376,7 @@ void cannon_shakeAnimationHandler(int param)
 		float oneMotion = 10;
 		float leftOneStart = 0;
 		float rightStart = leftOneStart + oneMotion;
-		float leftTwoStart = rightStart + (oneMotion) * 2;
+		float leftTwoStart = rightStart + (oneMotion * 2);
 		float restStart = leftTwoStart + oneMotion;
 		float restEnd = restStart + oneMotion;
 

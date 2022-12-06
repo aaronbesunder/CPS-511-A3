@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GL/glew.h>
 #include <gl/glut.h>
@@ -16,6 +16,7 @@ void drawHelp();
 void drawLeftText();
 void drawRightText();
 void drawCoordinates();
+void drawCollisionBox(float, float, float, float, float, float);
 
 // -----------------
 // --- Functions ---
@@ -136,6 +137,84 @@ void drawCoordinates()
 	glPopMatrix();
 
 	glEnable(GL_LIGHTING);
+}
+
+void drawCollisionBox(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax)
+{
+	GLfloat botThree_collision_mat_ambient[] = { 0.3f, 0.15f, 0.3f, 0.5f };
+	GLfloat botThree_collision_mat_specular[] = { 0.3f, 0.15f, 0.3f, 0.5f };
+	GLfloat botThree_collision_mat_diffuse[] = { 0.3f, 0.15f, 0.3f, 0.5f };
+	GLfloat botThree_collision_mat_shininess[] = { 32.0F };
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, botThree_collision_mat_ambient);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, botThree_collision_mat_specular);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, botThree_collision_mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SHININESS, botThree_collision_mat_shininess);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	//glDepthMask(GL_FALSE);
+
+	//    v1-------v4        Y
+	//     /|     /|         |
+	//    / |    / |         |____ X
+	//  v2-------v3|          \
+	//   |v5|___|__|v8         \
+	//   |  /   | /             Z
+	//   | /    |/
+	// v6‾‾‾‾‾‾‾‾v7
+	glPushMatrix();
+		glBegin(GL_QUADS);
+			//Top
+			glVertex3f(xMin, yMax, zMin);	//v1
+			glVertex3f(xMin, yMax, zMax);	//v2
+			glVertex3f(xMax, yMax, zMax);	//v3
+			glVertex3f(xMax, yMax, zMin);	//v4
+		glEnd();
+
+		glBegin(GL_QUADS);
+			//Bottom
+			glVertex3f(xMin, yMin, zMin);	//v5
+			glVertex3f(xMin, yMin, zMax);	//v6
+			glVertex3f(xMax, yMin, zMax);	//v7
+			glVertex3f(xMax, yMin, zMin);	//v8
+		glEnd();
+
+		glBegin(GL_QUADS);
+			//Front
+			glVertex3f(xMin, yMax, zMax);	//v2
+			glVertex3f(xMax, yMax, zMax);	//v3
+			glVertex3f(xMax, yMin, zMax);	//v7
+			glVertex3f(xMin, yMin, zMax);	//v6
+		glEnd();
+
+		glBegin(GL_QUADS);
+			//Back
+			glVertex3f(xMin, yMax, zMin);	//v1
+			glVertex3f(xMax, yMax, zMin);	//v4
+			glVertex3f(xMax, yMin, zMin);	//v8
+			glVertex3f(xMin, yMin, zMin);	//v5
+		glEnd();
+
+		glBegin(GL_QUADS);
+			//Right
+			glVertex3f(xMin, yMax, zMin);	//v1
+			glVertex3f(xMin, yMax, zMax);	//v2
+			glVertex3f(xMin, yMin, zMax);	//v6
+			glVertex3f(xMin, yMin, zMin);	//v5
+		glEnd();
+
+		glBegin(GL_QUADS);
+			//Left
+			glVertex3f(xMax, yMax, zMin);	//v4
+			glVertex3f(xMax, yMax, zMax);	//v3
+			glVertex3f(xMax, yMin, zMax);	//v7
+			glVertex3f(xMax, yMin, zMin);	//v8
+		glEnd();
+	glPopMatrix();
+
+	//glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 }
 
 #pragma once
