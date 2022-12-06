@@ -330,9 +330,9 @@ void cannon_projectileAnimationHandler(int param)
 				if (projectile_zPos[index] >= farPlane)
 					{ projectile_active[index] = false; }
 
-				//// Check for collision
-				//if (checkBotCollision(xPos, yPos, zPos))
-				//	{ projectile_active[index] = false; }
+				// Check for collision
+				if (checkBotCollision(xPos, yPos, zPos))
+					{ projectile_active[index] = false; }
 			}
 
 		}//for index

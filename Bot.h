@@ -137,51 +137,55 @@ void updateCollisionBoxes()
 	botFourTwo_collisionMinZ = botFourTwo_Z - (botFourTwo_bodyDepth / 2);
 }
 
-bool checkBotCollision(float x, float y, float z)
+bool checkBotCollision(float xPos, float yPos, float zPos)
 {
 	//Update positions
 	//glTranslatef(0.0, -18, 40 + projectile_depth);
-	x += 0;
-	y += -18;
-	z += 40 + projectile_depth;
+	float x = xPos;
+	float y = yPos - 18;
+	float z = (40 + projectile_depth) - zPos;
 
 	//Draws a box where it thinks the projectile is
 	glPushMatrix();
 		glTranslatef(x, y, z);
-		glutSolidCube(1);
+		glutSolidCube(100);
 	glPopMatrix();
 
 	// BotThree: One
-	if ( (x <= botThreeOne_collisionMaxX) && (x >= botThreeOne_collisionMinX))
-	{ collapseBotThree(1); return true; }
-	if ( (y <= botThreeOne_collisionMaxY) && (y >= botThreeOne_collisionMinY))
-	{ collapseBotThree(1); return true; }
-	if ( (z <= botThreeOne_collisionMaxZ) && (z >= botThreeOne_collisionMinZ))
-	{ collapseBotThree(1); return true; }
+	if (botThreeOne_active)
+	{
+		if ( (x <= botThreeOne_collisionMaxX) && (x >= botThreeOne_collisionMinX)
+		  && (y <= botThreeOne_collisionMaxY) && (y >= botThreeOne_collisionMinY)
+		  && (z <= botThreeOne_collisionMaxZ) && (z >= botThreeOne_collisionMinZ) )
+		{ collapseBotThree(1); return true; }
+	}
 
 	// BotThree: Two
-	if ( (x <= botThreeTwo_collisionMaxX) && (x >= botThreeTwo_collisionMinX))
-	{  collapseBotThree(2);return true; }
-	if ( (y <= botThreeTwo_collisionMaxY) && (y >= botThreeTwo_collisionMinY))
-	{  collapseBotThree(2);return true; }
-	if ( (z <= botThreeTwo_collisionMaxZ) && (z >= botThreeTwo_collisionMinZ))
-	{  collapseBotThree(2);return true; }
+	if (botThreeTwo_active)
+	{
+		if ( (x <= botThreeTwo_collisionMaxX) && (x >= botThreeTwo_collisionMinX)
+		  && (y <= botThreeTwo_collisionMaxY) && (y >= botThreeTwo_collisionMinY)
+		  && (z <= botThreeTwo_collisionMaxZ) && (z >= botThreeTwo_collisionMinZ) )
+		{ collapseBotThree(2); return true; }
+	}
 
 	// BotFour: One
-	if ( (x <= botFourOne_collisionMaxX) && (x >= botFourOne_collisionMinX))
-	{  collapseBotFour(1);return true; }
-	if ( (y <= botFourOne_collisionMaxY) && (y >= botFourOne_collisionMinY))
-	{  collapseBotFour(1);return true; }
-	if ( (z <= botFourOne_collisionMaxZ) && (z >= botFourOne_collisionMinZ))
-	{  collapseBotFour(1);return true; }
+	if (botFourOne_active)
+	{
+		if ( (x <= botFourOne_collisionMaxX) && (x >= botFourOne_collisionMinX)
+		  && (y <= botFourOne_collisionMaxY) && (y >= botFourOne_collisionMinY)
+		  && (z <= botFourOne_collisionMaxZ) && (z >= botFourOne_collisionMinZ) )
+		{ collapseBotFour(1); return true; }
+	}
 
 	// BotFour: Two
-	if ( (x <= botFourTwo_collisionMaxX) && (x >= botFourTwo_collisionMinX))
-	{ collapseBotFour(2); return true; }
-	if ( (y <= botFourTwo_collisionMaxY) && (y >= botFourTwo_collisionMinY))
-	{ collapseBotFour(2); return true; }
-	if ( (z <= botFourTwo_collisionMaxZ) && (z >= botFourTwo_collisionMinZ))
-	{ collapseBotFour(2); return true; }
+	if (botFourTwo_active)
+	{
+		if ( (x <= botFourTwo_collisionMaxX) && (x >= botFourTwo_collisionMinX)
+		  && (y <= botFourTwo_collisionMaxY) && (y >= botFourTwo_collisionMinY)
+		  && (z <= botFourTwo_collisionMaxZ) && (z >= botFourTwo_collisionMinZ) )
+		{ collapseBotFour(2); return true; }
+	}
 
 	return false;
 }

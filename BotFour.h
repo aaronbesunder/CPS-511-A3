@@ -692,6 +692,7 @@ void botFour_collapseAnimationHandler(int param)
 					botFourTwo_footWidth = 0 * botFourTwo_lowerLegWidth;
 					botFourTwo_footDepth = 0 * botFourTwo_lowerLegWidth;
 					botFourTwo_bar = 0;
+					done = false;
 				}
 				//If legs have disappeared, then fall
 				else
