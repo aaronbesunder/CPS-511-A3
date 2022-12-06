@@ -272,10 +272,8 @@ void cannon_updateCollisionBoxes()
 	cannon_collisionMaxY = -18 + yDelta;
 	cannon_collisionMinY = -18 - yDelta;
 	cannon_collisionMaxZ = 45 + (zDelta/2) - 1;
-	cannon_collisionMinZ = 45 - zDelta - 1;
 
 	float toRad = M_PI / 180;
-	//X
 	if (cannon_rotateX > 0)
 	{ 
 		cannon_collisionMinX = tan(-cannon_rotateX * toRad) - xDelta;
