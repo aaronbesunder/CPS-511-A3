@@ -30,7 +30,7 @@ static GLuint cannontexture;
 // Projectile
 bool cannon_projectileExists = false;
 void cannon_projectileAnimationHandler(int);
-float cannon_projectileSpeed = 0.1;
+float cannon_projectileSpeed = 0.7;
 float cannon_projectileStartZ = 45;
 
 // Projectile Dimensions
