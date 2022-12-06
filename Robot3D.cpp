@@ -176,8 +176,8 @@ void display(void)
 
 	// Defensive Cannon
 	drawDefensiveCannon();
-	for (int index = 0; index < projectile_Xpos.size; index++)
-		{drawCannonProjectile(index);};
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+		{cannon_drawProjectile(index);};
 
 	// Draw Robots
 	
@@ -477,7 +477,7 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		break;
 	case 32: //Space
-		addCannonProjectile();
+		cannon_addProjectile();
 		break;
 	}
 
@@ -572,6 +572,7 @@ void mouseMotionHandler(int xMouse, int yMouse)
 		mouse_prevY = yMouse;
 
 		// For testing
+		//cannon_rotateX = 0;
 		//cannon_rotateY = 0;
 
 		glutPostRedisplay();

@@ -5,6 +5,7 @@
 #include "BotThree.h"
 #include "BotFour.h"
 #include "Help.h"
+#include "Cannon.h"
 
 // -----------------
 // --- Variables ---
@@ -138,6 +139,17 @@ void updateCollisionBoxes()
 
 bool checkBotCollision(float x, float y, float z)
 {
+	//Update positions
+	//glTranslatef(0.0, -18, 40 + projectile_depth);
+	x += 0;
+	y += -18;
+	z += 40 + projectile_depth;
+
+	//Draws a box where it thinks the projectile is
+	glPushMatrix();
+		glTranslatef(x, y, z);
+		glutSolidCube(1);
+	glPopMatrix();
 
 	// BotThree: One
 	if ( (x <= botThreeOne_collisionMaxX) && (x >= botThreeOne_collisionMinX))

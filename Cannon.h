@@ -30,8 +30,7 @@ static GLuint cannontexture;
 
 // Projectile
 bool cannon_projectileExists = false;
-void cannon_projectileAnimationHandler(int);
-float cannon_projectileSpeed = 2.0;
+float cannon_projectileSpeed = 1;
 float cannon_projectileStartZ = 45;
 
 // Projectile Dimensions
@@ -56,14 +55,27 @@ void generateBuffers();
 void deleteBuffers();
 void drawDefensiveCannon();
 void exportCannonMesh();
-void drawCannonProjectile(int);
+
+void cannon_drawProjectile(int);
+void cannon_addProjectile();
+void cannon_projectileAnimationHandler(int);
+void cannon_printProjectileArray();
+void cannon_resetProjectileArray();
 
 //Projectile Arrays
-arrayClass projectile_Ypos{};
-arrayClass projectile_Xpos{};
-arrayClass projectile_Zpos{}; // Distance
-arrayClass projectile_Yang{};
-arrayClass projectile_Xang{};
+//arrayClass arrayprojectile_Ypos{};
+//arrayClass arrayprojectile_Xpos{};
+//arrayClass arrayprojectile_Zpos{}; // Distance
+//arrayClass arrayprojectile_Yang{};
+//arrayClass arrayprojectile_Xang{};
+
+const int cannon_maxProjectileNum = 10;
+bool projectile_active[cannon_maxProjectileNum];
+float projectile_xAng[cannon_maxProjectileNum];
+float projectile_yAng[cannon_maxProjectileNum];
+float projectile_xPos[cannon_maxProjectileNum];
+float projectile_yPos[cannon_maxProjectileNum];
+float projectile_zPos[cannon_maxProjectileNum]; // Distance
 
 // --------------
 // --- Cannon ---
@@ -174,6 +186,7 @@ void drawDefensiveCannon()
 	{
 		exportCannonMesh();
 		mallocCannonVbo = true;
+		cannon_resetProjectileArray();
 	}
 
 	glPushMatrix();
@@ -208,94 +221,66 @@ void drawDefensiveCannon()
 // --- Projectile ---
 // ------------------
 
-void drawCannonProjectile(int index)
+void cannon_drawProjectile(int index)
 {
-	// Instantiate arrays if needed
-	if (projectile_Xpos.size == 0)
+	if (projectile_active[index])
 	{
-		initArray(&projectile_Xpos);
-		initArray(&projectile_Ypos);
-		initArray(&projectile_Zpos);
-		initArray(&projectile_Xang);
-		initArray(&projectile_Yang);
+		float xAng = projectile_xAng[index];
+		float yAng = projectile_yAng[index];
+		float xPos = projectile_xPos[index];
+		float yPos = projectile_yPos[index];
+		float zPos = projectile_zPos[index];
+
+		glPushMatrix();
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
+
+			glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
+			glTranslatef(0.0, -18, 40 + projectile_depth);
+
+			// Rotate according to use mouse input
+			glRotatef(yAng, 1, 0, 0);
+			glRotatef(xAng, 0, 1, 0);
+
+			//glScalef(x, y, z);
+			glScalef(projectile_width, projectile_height, projectile_depth);
+
+			//gluCylinder(quad, base radius, top radius, height, slice, stacks)
+			gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
+
+		glPopMatrix();
 	}
-
-	float xAng = arrayGet(&projectile_Xang, index);
-	float yAng = arrayGet(&projectile_Yang, index);
-	float xPos = arrayGet(&projectile_Xpos, index);
-	float yPos = arrayGet(&projectile_Ypos, index);
-	float zPos = arrayGet(&projectile_Zpos, index);
-
-	glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
-
-		glTranslatef(xPos, yPos, -zPos); // Comment out to make projectile stand still
-		glTranslatef(0.0, -18, 40 + projectile_depth);
-
-		// Rotate according to use mouse input
-		//Y
-		glRotatef(yAng, 1, 0, 0);
-
-		//X
-		glRotatef(xAng, 0, 1, 0);
-
-		//glRotatef(20, 1, 0, 0);
-
-		//glScalef(x, y, z);
-		glScalef(projectile_width, projectile_height, projectile_depth);
-
-		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
-
-	glPopMatrix();
 }
 
-void addCannonProjectile()
+void cannon_addProjectile()
 {
-	// Instantiate arrays if needed
-	if (projectile_Xpos.size == 0)
+
+	// Go through projectile list to see if there is an empty one
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
 	{
-		initArray(&projectile_Xpos);
-		initArray(&projectile_Ypos);
-		initArray(&projectile_Zpos);
-		initArray(&projectile_Xang);
-		initArray(&projectile_Yang);
-	}
+		// If one is not active
+		if (!projectile_active[index])
+		{
+			// Insert into array
+			projectile_active[index] = true;
+			projectile_xAng[index] = cannon_rotateX;
+			projectile_yAng[index] = cannon_rotateY;
+			projectile_xPos[index] = 0;
+			projectile_yPos[index] = 0;
+			projectile_zPos[index] = 0;
 
-	arrayInsert(&projectile_Xang, cannon_rotateX);
-	arrayInsert(&projectile_Yang, cannon_rotateY);
+			if (cannon_projectileExists == false)
+			{
+				cannon_projectileExists = true;
+				glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+			}
 
-	int index = arrayGetSize(&projectile_Xpos);
-	float toRad = M_PI / 180;
-
-	float xAng = arrayGet(&projectile_Xang, index);
-	float yAng = arrayGet(&projectile_Yang, index);
-	
-
-	arrayInsert(&projectile_Xpos, 0);
-	arrayInsert(&projectile_Ypos, 0);
-	arrayInsert(&projectile_Zpos, 0);
-
-	/*int size = projectile_Ypos.size - 1;
-	printf("Inserted %f %f %f\n", projectile_Xpos.array[size], projectile_Ypos.array[size], projectile_Zpos.array[size]);*/
-
-	printf("Angle:\n");
-	printArray(&projectile_Xang);
-	printArray(&projectile_Yang);
-	printf("Position:\n");
-	printArray(&projectile_Xpos);
-	printArray(&projectile_Ypos);
-	printArray(&projectile_Zpos);
-	printf("\n");
-
-	if (cannon_projectileExists == false)
-	{
-		cannon_projectileExists = true;
-		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
-	}
+			cannon_printProjectileArray();
+			return;
+		}//if not active
+	}//for index
 
 }
 
@@ -303,7 +288,7 @@ void cannon_projectileAnimationHandler(int param)
 {
 	if (cannon_projectileExists)
 	{
-		for (int index = 0; index < projectile_Xpos.size; index++)
+		for (int index = 0; index < cannon_maxProjectileNum; index++)
 		{
 
 			//     X/Y/Z
@@ -317,55 +302,78 @@ void cannon_projectileAnimationHandler(int param)
 			//  / | Cannon
 			//  ‾‾
 
-			float toRad = M_PI / 180;
-
-
-			float xAng = arrayGet(&projectile_Xang, index);
-			float yAng = arrayGet(&projectile_Yang, index);
-			float xPos = arrayGet(&projectile_Xpos, index);
-			float yPos = arrayGet(&projectile_Ypos, index);
-			float zPos = arrayGet(&projectile_Zpos, index); 
-
-			float addCannonY = (0.02 * pow(yAng, 2)) + (0.5 * yAng) + 22 * 0;
-
-			//float addX = cos(-xAng * toRad) * cannon_projectileSpeed;
-			float addX = tan(-xAng * toRad) * cannon_projectileSpeed;
-			float addY = sin(yAng * toRad) * cannon_projectileSpeed;
-			float addZ = cannon_projectileSpeed;
-
-			arrayAdd(&projectile_Xpos, index, addX);
-			arrayAdd(&projectile_Ypos, index, addY);
-			arrayAdd(&projectile_Zpos, index, addZ);
-
-			// Remove if reached farplane
-			if (arrayGet(&projectile_Zpos, index) >= farPlane)
+			// Update only if active
+			if (projectile_active[index])
 			{
-				arrayRemove(&projectile_Xang, index);
-				arrayRemove(&projectile_Yang, index);
+				float toRad = M_PI / 180;
 
-				arrayRemove(&projectile_Xpos, index);
-				arrayRemove(&projectile_Ypos, index);
-				arrayRemove(&projectile_Zpos, index);
+				float xAng = projectile_xAng[index];
+				float yAng = projectile_yAng[index];
+				float xPos = projectile_xPos[index];
+				float yPos = projectile_yPos[index];
+				float zPos = projectile_zPos[index];
+
+				float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
+				float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
+				float zAdd = cannon_projectileSpeed;
+
+				xPos += xAdd;
+				yPos += yAdd;
+				zPos += zAdd;
+
+				// Update array
+				projectile_xPos[index] = xPos;
+				projectile_yPos[index] = yPos;
+				projectile_zPos[index] = zPos;
+
+				// Deactivate if reached farplane
+				if (projectile_zPos[index] >= farPlane)
+					{ projectile_active[index] = false; }
+
+				//// Check for collision
+				//if (checkBotCollision(xPos, yPos, zPos))
+				//	{ projectile_active[index] = false; }
 			}
 
-			xPos = arrayGet(&projectile_Xpos, index);
-			yPos = arrayGet(&projectile_Ypos, index);
-			zPos = arrayGet(&projectile_Zpos, index);
-
-			// Check for collision
-			if (checkBotCollision(xPos, yPos, zPos))
-			{
-				arrayRemove(&projectile_Xang, index);
-				arrayRemove(&projectile_Yang, index);
-
-				arrayRemove(&projectile_Xpos, index);
-				arrayRemove(&projectile_Ypos, index);
-				arrayRemove(&projectile_Zpos, index);
-			}
-		}
+		}//for index
 
 		glutPostRedisplay();
 		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+	}//if projectile exists
+}
+
+void cannon_printProjectileArray()
+{
+	printf("\nAngle:\n");
+	printf("   X:");
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+	{ if (projectile_active[index]) { printf(" %f", projectile_xAng[index]); }}
+	printf("\n   Y:");
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+		{ if (projectile_active[index]) { printf(" %f", projectile_yAng[index]); }}
+	printf("\nPosition:\n");
+	printf("   X:");
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+		{ if (projectile_active[index]) { printf(" %f", projectile_xPos[index]); }}
+	printf("\n   Y:");
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+		{ if (projectile_active[index]) { printf(" %f", projectile_yPos[index]); }}
+	printf("\n   Z:");
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+		{ if (projectile_active[index]) { printf(" %f", projectile_zPos[index]); }}
+	printf("\n");
+}
+
+void cannon_resetProjectileArray()
+{
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+	{
+		projectile_active[index] = false;
+		projectile_xAng[index] = 0;
+		projectile_yAng[index] = 0;
+		projectile_xPos[index] = 0;
+		projectile_yPos[index] = 0;
+		projectile_zPos[index] = 0;
 	}
 }
 
