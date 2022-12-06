@@ -5,6 +5,7 @@
 #include <corecrt_math_defines.h>
 
 #include "Bot.h"
+bool checkBotCollision(float, float, float);
 
 // -----------------
 // --- Variables ---
@@ -338,6 +339,21 @@ void cannon_projectileAnimationHandler(int param)
 
 			// Remove if reached farplane
 			if (arrayGet(&projectile_Zpos, index) >= farPlane)
+			{
+				arrayRemove(&projectile_Xang, index);
+				arrayRemove(&projectile_Yang, index);
+
+				arrayRemove(&projectile_Xpos, index);
+				arrayRemove(&projectile_Ypos, index);
+				arrayRemove(&projectile_Zpos, index);
+			}
+
+			xPos = arrayGet(&projectile_Xpos, index);
+			yPos = arrayGet(&projectile_Ypos, index);
+			zPos = arrayGet(&projectile_Zpos, index);
+
+			// Check for collision
+			if (checkBotCollision(xPos, yPos, zPos))
 			{
 				arrayRemove(&projectile_Xang, index);
 				arrayRemove(&projectile_Yang, index);
