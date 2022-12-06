@@ -850,13 +850,6 @@ void botThree_walkAnimationHandler(int param)
 			if (botThreeOne_leftWalkIndex >= arrLen)
 				{ botThreeOne_leftWalkIndex = 0; }
 		}
-		else
-		{
-			botThreeOne_rightHipAngle = 45.0;
-			botThreeOne_leftHipAngle = 45.0;
-			botThreeOne_rightKneeAngle = 270.0;
-			botThreeOne_leftKneeAngle = 270.0;
-		}
 
 		// BotThree: Two
 		if (botThreeTwo_active)
@@ -876,13 +869,6 @@ void botThree_walkAnimationHandler(int param)
 
 			if (botThreeTwo_leftWalkIndex >= arrLen)
 				{ botThreeTwo_leftWalkIndex = 0; }
-		}
-		else
-		{
-			botThreeTwo_rightHipAngle = 45.0;
-			botThreeTwo_leftHipAngle = 45.0;
-			botThreeTwo_rightKneeAngle = 270.0;
-			botThreeTwo_leftKneeAngle = 270.0;
 		}
 
 		// Both not active
@@ -988,9 +974,17 @@ void collapseBotThree(int botNum)
 	{
 	case 1:
 		botThreeOne_active = false;
+		botThreeOne_rightHipAngle = 45.0;
+		botThreeOne_leftHipAngle = 45.0;
+		botThreeOne_rightKneeAngle = 270.0;
+		botThreeOne_leftKneeAngle = 270.0;
 		break;
 	case 2:
 		botThreeTwo_active = false;
+		botThreeTwo_rightHipAngle = 45.0;
+		botThreeTwo_leftHipAngle = 45.0;
+		botThreeTwo_rightKneeAngle = 270.0;
+		botThreeTwo_leftKneeAngle = 270.0;
 		break;
 	}
 
