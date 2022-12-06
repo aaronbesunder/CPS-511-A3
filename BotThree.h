@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "Bot.h"
-void updateCollisionBoxes();
+void bot_updateCollisionBoxes();
 
 // -----------------
 // --- Variables ---
@@ -953,7 +953,7 @@ void botThree_collapseAnimationHandler(int param)
 				{ botThreeTwo_rightKneeAngle++; done = false; }
 		}
 
-		updateCollisionBoxes();
+		bot_updateCollisionBoxes();
 		glutPostRedisplay();
 
 		//If not all at end of line, continue

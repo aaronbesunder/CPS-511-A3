@@ -67,8 +67,8 @@ float botFourTwo_collisionMinZ;
 // --- Functions ---
 void translateAnimationHandler(int);
 void drawRobot(int botNum);
-void updateCollisionBoxes();
-bool checkBotCollision(float, float, float);
+void bot_updateCollisionBoxes();
+bool bot_checkBotCollision(float, float, float);
 
 // -----------------
 // --- Functions ---
@@ -102,7 +102,7 @@ void drawRobot(int botNum)
 	glPopMatrix();
 }
 
-void updateCollisionBoxes()
+void bot_updateCollisionBoxes()
 {
 	// BotThree: One
 	botThreeOne_collisionMaxX = botThreeOne_X + (botThree_bodyWidth / 2);
@@ -137,19 +137,13 @@ void updateCollisionBoxes()
 	botFourTwo_collisionMinZ = botFourTwo_Z - (botFourTwo_bodyDepth / 2);
 }
 
-bool checkBotCollision(float xPos, float yPos, float zPos)
+bool bot_checkBotCollision(float xPos, float yPos, float zPos)
 {
 	//Update positions
 	//glTranslatef(0.0, -18, 40 + projectile_depth);
 	float x = xPos;
 	float y = yPos - 18;
 	float z = (40 + projectile_depth) - zPos;
-
-	//Draws a box where it thinks the projectile is
-	glPushMatrix();
-		glTranslatef(x, y, z);
-		glutSolidCube(100);
-	glPopMatrix();
 
 	// BotThree: One
 	if (botThreeOne_active)
@@ -240,7 +234,7 @@ void translateAnimationHandler(int param)
 				{ collapseBotFour(2); }
 		}
 
-		updateCollisionBoxes();
+		bot_updateCollisionBoxes();
 		glutPostRedisplay();
 
 		//If not all at end of line, continue

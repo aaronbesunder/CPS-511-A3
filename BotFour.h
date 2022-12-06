@@ -3,7 +3,7 @@
 #include <GL/freeglut.h>
 
 #include "Bot.h"
-void updateCollisionBoxes();
+void bot_updateCollisionBoxes();
 
 // -----------------
 // --- Variables ---
@@ -712,7 +712,7 @@ void botFour_collapseAnimationHandler(int param)
 			}
 		}
 
-		updateCollisionBoxes();
+		bot_updateCollisionBoxes();
 		glutPostRedisplay();
 
 		//If not all at end of line, continue

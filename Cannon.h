@@ -5,7 +5,7 @@
 #include <corecrt_math_defines.h>
 
 #include "Bot.h"
-bool checkBotCollision(float, float, float);
+bool bot_checkBotCollision(float, float, float);
 
 // -----------------
 // --- Variables ---
@@ -20,6 +20,7 @@ int cannon_quadLen = 0;
 int cannon_quadSize = 0;
 float cannon_rotateX = 0;
 float cannon_rotateY = 0;
+float cannon_xPos = 0;
 unsigned int cannon_vertexVboID;
 unsigned int cannon_normalVboID;
 unsigned int cannon_indexVboID;
@@ -28,34 +29,52 @@ GLdouble* cannon_vertexNormalVao;
 GLuint* cannon_quadIndicesVao;
 static GLuint cannontexture;
 
+// Collision Box
+float cannon_collisionMaxX;
+float cannon_collisionMinX;
+float cannon_collisionMaxY;
+float cannon_collisionMinY;
+float cannon_collisionMaxZ;
+float cannon_collisionMinZ;
+void cannon_updateCollisionBoxes();
+bool cannon_checkCollision(float, float, float);
+
+// Cannon Shake
+bool cannon_active = true;
+bool cannon_collapseOngoing = false;
+int cannon_shakeSeconds = 0;
+
 // Projectile
 bool cannon_projectileExists = false;
 float cannon_projectileSpeed = 1;
-float cannon_projectileStartZ = 45;
 
 // Projectile Dimensions
 float projectile_height = 0.3;
 float projectile_width = 0.3;
 float projectile_depth = 5;
 
-// Cannon
+// Cannon Lighting
 GLfloat cannonMat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
 GLfloat cannonMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
 GLfloat cannonMat_diffuse[] = { 0.2f, 0.2f, 0.2f, 0.2f };
 GLfloat cannonMat_shininess[] = { 5.0F };
 
-// Projectile
+// Projectile Lighting
 GLfloat projectileMat_ambient[] = { 0.0, 1.0, 0.0, 1.0 };
 GLfloat projectileMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
 GLfloat projectileMat_diffuse[] = { 0.1f, 0.1f, 0.1, 0.2f };
 GLfloat projectileMat_shininess[] = { 5.0F };
 
-// Functions
+// Cannon Functions
 void generateBuffers();
 void deleteBuffers();
 void drawDefensiveCannon();
 void exportCannonMesh();
+void collapseCannon();
+void cannon_collapseAnimationHandler(int);
+void cannon_shakeAnimationHandler(int);
 
+// Projectile Functions
 void cannon_drawProjectile(int);
 void cannon_addProjectile();
 void cannon_projectileAnimationHandler(int);
@@ -63,12 +82,6 @@ void cannon_printProjectileArray();
 void cannon_resetProjectileArray();
 
 //Projectile Arrays
-//arrayClass arrayprojectile_Ypos{};
-//arrayClass arrayprojectile_Xpos{};
-//arrayClass arrayprojectile_Zpos{}; // Distance
-//arrayClass arrayprojectile_Yang{};
-//arrayClass arrayprojectile_Xang{};
-
 const int cannon_maxProjectileNum = 10;
 bool projectile_active[cannon_maxProjectileNum];
 float projectile_xAng[cannon_maxProjectileNum];
@@ -196,7 +209,7 @@ void drawDefensiveCannon()
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, cannonMat_shininess);
 
 		// Transformations
-		glTranslatef(0, -18.0, 45);
+		glTranslatef(cannon_xPos, -18.0, 45);
 		glRotatef(-90, 1, 0, 0);
 
 		// Rotate according to use mouse input
@@ -215,6 +228,120 @@ void drawDefensiveCannon()
 		//glDrawElements(GL_LINE_LOOP, cannon_quadSize, GL_UNSIGNED_INT, (void*)0);
 		deleteBuffers();
 	glPopMatrix();
+}
+
+// ------------------------
+// --- Cannon Collision ---
+// ------------------------
+
+void cannon_updateCollisionBoxes()
+{
+	// Cannon
+	cannon_collisionMaxX = cannon_xPos + 5;
+	cannon_collisionMinX = cannon_xPos - 5;
+	cannon_collisionMaxY = -18 + 5;
+	cannon_collisionMinY = -18 - 5;
+	cannon_collisionMaxZ = 45 + 5;
+	cannon_collisionMinZ = 45 - 5;
+}
+
+bool cannon_checkCollision(float xPos, float yPos, float zPos)
+{
+	//Update positions
+	float x = xPos;
+	float y = yPos;
+	float z = zPos;
+
+	// Cannon
+	if (cannon_active)
+	{
+		if ( (x <= cannon_collisionMaxX) && (x >= cannon_collisionMinX)
+		  && (y <= cannon_collisionMaxY) && (y >= cannon_collisionMinY)
+		  && (z <= cannon_collisionMaxZ) && (z >= cannon_collisionMinZ) )
+		{ collapseCannon(); return true; }
+	}
+
+	return false;
+}
+
+// --------------------
+// --- Cannon Shake ---
+// --------------------
+
+void collapseCannon()
+{
+	cannon_active = false;
+	if (!cannon_collapseOngoing)
+	{
+		cannon_collapseOngoing = true;
+		glutTimerFunc(10, cannon_collapseAnimationHandler, 0);
+	}
+}
+
+void cannon_collapseAnimationHandler(int param)
+{
+	if (cannon_collapseOngoing)
+	{
+		bool done = true;
+		float yCollapseSpeed = -0.07;
+		float yEnd = -20;
+
+		// cannon
+		if (!cannon_active)
+		{
+			// Y
+			if (cannon_rotateY > yEnd)
+				{ cannon_rotateY += yCollapseSpeed; done = false; }
+		}
+
+		cannon_updateCollisionBoxes();
+		glutPostRedisplay();
+
+		//If not all at end of line, continue
+		if (!done)
+			{ glutTimerFunc(10, cannon_collapseAnimationHandler, 0); }
+		else
+		{
+			cannon_collapseOngoing = false;
+			glutTimerFunc(10, cannon_shakeAnimationHandler, 0);
+		}
+	}
+}
+
+void cannon_shakeAnimationHandler(int param)
+{
+
+	// cannon
+	if (!cannon_active)
+	{
+		float oneMotion = 10;
+		float leftOneStart = 0;
+		float rightStart = leftOneStart + oneMotion;
+		float leftTwoStart = rightStart + (oneMotion) * 2;
+		float restStart = leftTwoStart + oneMotion;
+		float restEnd = restStart + oneMotion;
+
+		// Reset shake if rest end
+		if (cannon_shakeSeconds >= restEnd)
+			{ cannon_shakeSeconds = leftOneStart; }
+
+		// Shake
+		float shakeSpeed = 1;
+
+		if ((cannon_shakeSeconds >= leftOneStart) && (cannon_shakeSeconds < rightStart))
+		{ cannon_xPos -= shakeSpeed; }
+		else if ((cannon_shakeSeconds >= rightStart) && (cannon_shakeSeconds < leftTwoStart))
+		{ cannon_xPos += shakeSpeed; }
+		else if ((cannon_shakeSeconds >= leftTwoStart) && (cannon_shakeSeconds < restStart))
+		{ cannon_xPos -= shakeSpeed; }
+
+		cannon_updateCollisionBoxes();
+		glutPostRedisplay();
+
+		//Continue
+		cannon_shakeSeconds++;
+		glutTimerFunc(10, cannon_shakeAnimationHandler, 0);
+	}
 }
 
 // ------------------
@@ -331,7 +458,7 @@ void cannon_projectileAnimationHandler(int param)
 					{ projectile_active[index] = false; }
 
 				// Check for collision
-				if (checkBotCollision(xPos, yPos, zPos))
+				if (bot_checkBotCollision(xPos, yPos, zPos))
 					{ projectile_active[index] = false; }
 			}
 
