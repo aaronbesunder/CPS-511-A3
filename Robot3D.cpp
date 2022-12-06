@@ -290,7 +290,6 @@ void keyboard(unsigned char key, int x, int y)
 			// General
 			rotateSpeed = 2.0;
 			botsMoving = false;
-			cannon_resetProjectileArray();
 
 			botThreeOne_active = true;
 			botThreeOne_Y = botThree_startingY;
@@ -305,6 +304,12 @@ void keyboard(unsigned char key, int x, int y)
 			botFourTwo_active = true;
 			botFourTwo_Y = botFour_startingY;
 			botFourTwo_Z = startingZ;
+
+			// Cannon
+			cannon_active = true;
+			cannon_collapseOngoing = false;
+			cannon_shakeSeconds = 0;
+			cannon_resetProjectileArray();
 			break;
 	}
 
@@ -368,35 +373,38 @@ void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
-		float sensitivity = 0.5;
+		if (cannon_active)
+		{
+			float sensitivity = 0.5;
 
-		// Cannon Rotate X
-		float deltaX = xMouse - mouse_prevX;
-		cannon_rotateX += -deltaX * sensitivity;
+			// Cannon Rotate X
+			float deltaX = xMouse - mouse_prevX;
+			cannon_rotateX += -deltaX * sensitivity;
 
-		// Cannon Rotate X: Limit
-		float xLimit = 75;
-		if (cannon_rotateX > xLimit)
-			{ cannon_rotateX = xLimit; }
-		if (cannon_rotateX < -xLimit)
-			{ cannon_rotateX = -xLimit; }
+			// Cannon Rotate X: Limit
+			float xLimit = 75;
+			if (cannon_rotateX > xLimit)
+				{ cannon_rotateX = xLimit; }
+			if (cannon_rotateX < -xLimit)
+				{ cannon_rotateX = -xLimit; }
 
-		// Cannon Rotate X: Update Prev
-		mouse_prevX = xMouse;
+			// Cannon Rotate X: Update Prev
+			mouse_prevX = xMouse;
 
-		// Cannon Rotate Y
-		float deltaY = yMouse - mouse_prevY;
-		cannon_rotateY += -deltaY * sensitivity;
+			// Cannon Rotate Y
+			float deltaY = yMouse - mouse_prevY;
+			cannon_rotateY += -deltaY * sensitivity;
 
-		// Cannon Rotate Y: Limit
-		float yLimit = 20;
-		if (cannon_rotateY > yLimit)
-			{ cannon_rotateY = yLimit; }
-		if (cannon_rotateY < -yLimit)
-			{ cannon_rotateY = -yLimit; }
+			// Cannon Rotate Y: Limit
+			float yLimit = 20;
+			if (cannon_rotateY > yLimit)
+				{ cannon_rotateY = yLimit; }
+			if (cannon_rotateY < -yLimit)
+				{ cannon_rotateY = -yLimit; }
 
-		// Cannon Rotate Y: Update Prev
-		mouse_prevY = yMouse;
+			// Cannon Rotate Y: Update Prev
+			mouse_prevY = yMouse;
+		}
 
 		// For testing
 		//cannon_rotateX = 0;

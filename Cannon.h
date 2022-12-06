@@ -283,15 +283,21 @@ void cannon_collapseAnimationHandler(int param)
 	if (cannon_collapseOngoing)
 	{
 		bool done = true;
-		float yCollapseSpeed = -0.07;
+		float collapseSpeed = -0.07;
 		float yEnd = -20;
+		float xEnd = 0;
 
 		// cannon
 		if (!cannon_active)
 		{
 			// Y
 			if (cannon_rotateY > yEnd)
-				{ cannon_rotateY += yCollapseSpeed; done = false; }
+				{ cannon_rotateY += collapseSpeed; done = false; }
+			// X
+			if (cannon_rotateX > xEnd)
+				{ cannon_rotateX += collapseSpeed; done = false; }
+			else if (cannon_rotateX < xEnd)
+				{ cannon_rotateX -= collapseSpeed; done = false; }
 		}
 
 		cannon_updateCollisionBoxes();
@@ -312,7 +318,7 @@ void cannon_shakeAnimationHandler(int param)
 {
 
 	// cannon
-	if (!cannon_active)
+	if ((!cannon_active) && (!cannon_collapseOngoing))
 	{
 		// leftOne | ----------- 0 ---------- |
 		//         |          -2 |            |
