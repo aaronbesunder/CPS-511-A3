@@ -314,6 +314,27 @@ void cannon_shakeAnimationHandler(int param)
 	// cannon
 	if (!cannon_active)
 	{
+		// leftOne | ----------- 0 ---------- |
+		//         |          -2 |            |
+		//         |        -4   |            |
+		//         |      -6     |            |
+		//         |    -8       |            |
+		// right   | -10 --------| ---------- |
+		//         |    -8       |            |
+		//         |      -6     |            |
+		//         |        -4   |            |
+		//         |          -2 |            |
+		//         |             0            |
+		//         |             | 2          |
+		//         |             |   4        |
+		//         |             |     6      |
+		//         |             |       8    |
+		// leftTwo | ----------- | ------- 10 |
+		//         |             |       8    |
+		//         |             |     6      |
+		//         |             |   4        |
+		//         |             | 2          |
+		//         | ----------- 0 ---------- |
 		float oneMotion = 10;
 		float leftOneStart = 0;
 		float rightStart = leftOneStart + oneMotion;
