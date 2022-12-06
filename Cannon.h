@@ -4,6 +4,8 @@
 #include "Window.h"
 #include <corecrt_math_defines.h>
 
+#include "Bot.h"
+
 // -----------------
 // --- Variables ---
 // -----------------
@@ -335,8 +337,15 @@ void cannon_projectileAnimationHandler(int param)
 			arrayAdd(&projectile_Zpos, index, addZ);
 
 			// Remove if reached farplane
-			/*if (arrayGet(&projectile_Zpos, index) <= farPlane)
-				{ arrayRemove(&projectile_Zpos, index); }*/
+			if (arrayGet(&projectile_Zpos, index) >= farPlane)
+			{
+				arrayRemove(&projectile_Xang, index);
+				arrayRemove(&projectile_Yang, index);
+
+				arrayRemove(&projectile_Xpos, index);
+				arrayRemove(&projectile_Ypos, index);
+				arrayRemove(&projectile_Zpos, index);
+			}
 		}
 
 		glutPostRedisplay();

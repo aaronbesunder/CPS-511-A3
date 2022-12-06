@@ -66,6 +66,8 @@ float botFourTwo_collisionMinZ;
 // --- Functions ---
 void translateAnimationHandler(int);
 void drawRobot(int botNum);
+void updateCollisionBoxes();
+bool checkBotCollision(float, float, float);
 
 // -----------------
 // --- Functions ---
@@ -132,6 +134,44 @@ void updateCollisionBoxes()
 	botFourTwo_collisionMinY = botFourTwo_Y - (botFourTwo_bodyLength / 2);
 	botFourTwo_collisionMaxZ = botFourTwo_Z + (botFourTwo_bodyDepth / 2);
 	botFourTwo_collisionMinZ = botFourTwo_Z - (botFourTwo_bodyDepth / 2);
+}
+
+bool checkBotCollision(float x, float y, float z)
+{
+
+	// BotThree: One
+	if ( (x <= botThreeOne_collisionMaxX) && (x >= botThreeOne_collisionMinX))
+	{ return true; }
+	if ( (y <= botThreeOne_collisionMaxY) && (y >= botThreeOne_collisionMinY))
+	{ return true; }
+	if ( (z <= botThreeOne_collisionMaxZ) && (z >= botThreeOne_collisionMinZ))
+	{ return true; }
+
+	// BotThree: Two
+	if ( (x <= botThreeTwo_collisionMaxX) && (x >= botThreeTwo_collisionMinX))
+	{ return true; }
+	if ( (y <= botThreeTwo_collisionMaxY) && (y >= botThreeTwo_collisionMinY))
+	{ return true; }
+	if ( (z <= botThreeTwo_collisionMaxZ) && (z >= botThreeTwo_collisionMinZ))
+	{ return true; }
+
+	// BotFour: One
+	if ( (x <= botFourOne_collisionMaxX) && (x >= botFourOne_collisionMinX))
+	{ return true; }
+	if ( (y <= botFourOne_collisionMaxY) && (y >= botFourOne_collisionMinY))
+	{ return true; }
+	if ( (z <= botFourOne_collisionMaxZ) && (z >= botFourOne_collisionMinZ))
+	{ return true; }
+
+	// BotFour: Two
+	if ( (x <= botFourTwo_collisionMaxX) && (x >= botFourTwo_collisionMinX))
+	{ return true; }
+	if ( (y <= botFourTwo_collisionMaxY) && (y >= botFourTwo_collisionMinY))
+	{ return true; }
+	if ( (z <= botFourTwo_collisionMaxZ) && (z >= botFourTwo_collisionMinZ))
+	{ return true; }
+
+	return false;
 }
 
 // ------------------

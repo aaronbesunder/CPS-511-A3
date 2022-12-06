@@ -20,8 +20,6 @@
 #include "QuadMesh.h"
 #include "Window.h"
 #include "Bot.h"
-#include "BotThree.h"
-#include "BotFour.h"
 #include "Cannon.h"
 
 // Light properties
