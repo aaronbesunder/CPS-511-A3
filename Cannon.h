@@ -277,7 +277,7 @@ void cannon_addProjectile()
 				glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
 			}
 
-			cannon_printProjectileArray();
+			//cannon_printProjectileArray();
 			return;
 		}//if not active
 	}//for index

@@ -211,274 +211,101 @@ void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-
-	case 'r':
-		// Bot Four
-		
-		// Bot Three
-		botThree_robotAngle += rotateSpeed;
-		if (botThree_robotAngle >= 360)
-			{ botThree_robotAngle -= 360.0; }
-		break;
-
-	case 'R':
-		// Bot Four
-		
-		// Bot Three
-		botThree_robotAngle -= rotateSpeed;
-		if (botThree_robotAngle < 0)
-			{ botThree_robotAngle += 360.0; }
-		break;
-
-	case 'b':
-		// Bot Four
-		botFour_bodyAngle += rotateSpeed;
-		if (botFour_bodyAngle >= 360)
-			{ botFour_bodyAngle -= 360.0; }
-		// Bot Three
-		botThree_bodyAngle += rotateSpeed;
-		if (botThree_bodyAngle >= 360)
-			{ botThree_bodyAngle -= 360.0; }
-		break;
-
-	case 'B':
-		// Bot Four
-		botFour_bodyAngle -= rotateSpeed;
-		if (botFour_bodyAngle < 0)
-			{ botFour_bodyAngle += 360.0; }
-		// Bot Three
-		botThree_bodyAngle -= rotateSpeed;
-		if (botThree_bodyAngle < 0)
-			{ botThree_bodyAngle += 360.0; }
-		break;
-
-	case 'h':
-		// Bot Four
-		botFour_rightHipAngle += rotateSpeed;
-		botFour_leftHipAngle += rotateSpeed;
-		if (botFour_rightHipAngle >= 360)
-		{
-			botFour_rightHipAngle -= 360.0;
-			botFour_leftHipAngle -= 360.0;
-		}
-		// Bot Three
-		botThreeOne_rightHipAngle += rotateSpeed;
-		botThreeOne_leftHipAngle += rotateSpeed;
-		if (botThreeOne_rightHipAngle >= 360)
-		{ 
-			botThreeOne_rightHipAngle -= 360.0;
-			botThreeOne_leftHipAngle -= 360.0;
-		}
-		break;
-
-	case'H':
-		// Bot Four
-		botFour_rightHipAngle -= rotateSpeed;
-		botFour_leftHipAngle -= rotateSpeed;
-		if (botFour_rightHipAngle < 0)
-		{
-			botFour_rightHipAngle += 360.0;
-			botFour_leftHipAngle += 360.0;
-		}
-		// Bot Three
-		botThreeOne_rightHipAngle -= rotateSpeed;
-		botThreeOne_leftHipAngle -= rotateSpeed;
-		if (botThreeOne_rightHipAngle < 0)
-		{
-			botThreeOne_rightHipAngle += 360.0;
-			botThreeOne_leftHipAngle += 360.0;
-		}
-		break;
-
-	case 'k':
-		// Bot Four
-		botFour_rightKneeAngle += rotateSpeed;
-		botFour_leftKneeAngle += rotateSpeed;
-		if (botFour_rightKneeAngle >= 360)
-		{
-			botFour_rightKneeAngle -= 360.0;
-			botFour_leftKneeAngle -= 360.0;
-		}
-		// Bot Three
-		botThreeOne_rightKneeAngle += rotateSpeed;
-		botThreeOne_leftKneeAngle += rotateSpeed;
-		if (botThreeOne_rightKneeAngle >= 360)
-		{
-			botThreeOne_rightKneeAngle -= 360.0;
-			botThreeOne_leftKneeAngle -= 360.0;
-		}
-		break;
-
-
-	case 'K':
-		// Bot Four
-		botFour_rightKneeAngle -= rotateSpeed;
-		botFour_leftKneeAngle -= rotateSpeed;
-		if (botFour_rightKneeAngle < 0)
-		{
-			botFour_rightKneeAngle += 360.0;
-			botFour_leftKneeAngle += 360.0;
-		}
-		// Bot Three
-		botThreeOne_rightKneeAngle -= rotateSpeed;
-		botThreeOne_leftKneeAngle -= rotateSpeed;
-		if (botThreeOne_rightKneeAngle < 0)
-		{
-			botThreeOne_rightKneeAngle += 360.0;
-			botThreeOne_leftKneeAngle += 360.0;
-		}
-		break;
-
-	case 'f':
-		// Bot Four
-		if (botFour_leftFootAngle >= -132 && botFour_leftFootAngle < 74)
-			{ botFour_leftFootAngle += 2.0; }
-		break;
-
-
-	case 'F':
-		// Bot Four
-		if (botFour_leftFootAngle > -52 && botFour_leftFootAngle <= 132)
-		{
-			botFour_leftFootAngle -= 2.0;
-			//printf("%lf\n", botFour_leftFootAngle);
+		case 32: //Space
+			cannon_addProjectile();
 			break;
-		}
-		break;
 
-	case 'c':
-		// Bot Four
-		botFour_gunStop = false;
-		glutTimerFunc(10, botFour_gunHandler, 0);
-		// Bot Three
-		if (botThree_cannonRotation == false)
-		{
-			botThree_cannonRotation = true;
-			glutTimerFunc(10, botThree_cannonAnimationHandler, 0);
-		}
-		break;
+		case 's':
+		case 'S':
+			if (!botsMoving)
+			{
+				botsMoving = true;
+				glutTimerFunc(10, translateAnimationHandler, 0);
+			}
+			break;
 
-	case 'C':
-		// Bot Four
-		botFour_gunStop = true;
-		// Bot Three
-		botThree_cannonRotation = false;
-		break;
+		case 'r':
+		case 'R':
+			// Bot Four
+			botFour_gunAngle = 270;
+			botFour_bodyAngle = 0.0;
+			botFour_rightHipAngle = 0.0;
+			botFour_leftHipAngle = 0.0;
+			botFour_rightKneeAngle = 0.0;
+			botFour_leftKneeAngle = 0.0;
 
-	case 'w':
-		// Bot Four
-		glutIdleFunc(botFour_takeStep);
-		botFour_start = false;
-		// Bot Three
-		if (botThree_walkCycle == false)
-		{
-			botThree_walkCycle = true;
-			glutTimerFunc(10, botThree_walkAnimationHandler, 0);
-		}
-		break;
+			botFour_start = false;
+			botFour_stop = false;
+			botFourR_stop = false;
+			botFour_reverse = false;
+			botFour_firstcheck = false;
+			botFour_stopmovingupper = false;
+			botFour_gunStop = false;
 
-	case 'W':
-		// Bot Four
-		botFour_stop = true;
-		botFourR_stop = true;
-		// Bot Three
-		botThree_walkCycle = false;
-		break;
-	
-	case 't':
-	case 'T':
-		// Bot Four
-		
-		botFour_gunAngle = 270;
-		botFour_bodyAngle = 0.0;
-		botFour_rightHipAngle = 0.0;
-		botFour_leftHipAngle = 0.0;
-		botFour_rightKneeAngle = 0.0;
-		botFour_leftKneeAngle = 0.0;
+			botFourOne_robotAngle = 0;
+			botFourOne_upperLegLength = 0.95 * botFourOne_bodyLength;
+			botFourOne_upperLegWidth = 0.125 * botFourOne_bodyWidth;
+			botFourOne_lowerLegLength = botFourOne_upperLegLength;
+			botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
+			botFourOne_footLength = botFourOne_lowerLegLength / 3.0;
+			botFourOne_ballJointLength = botFourOne_lowerLegLength / 5.0;
+			botFourOne_footWidth = 2.0 * botFourOne_lowerLegWidth;
+			botFourOne_bar = 1.6 * botFourOne_bodyWidth;
+			botFourOne_footDepth = 2.0 * botFourOne_lowerLegWidth;
 
-		botFour_start = false;
-		botFour_stop = false;
-		botFourR_stop = false;
-		botFour_reverse = false;
-		botFour_firstcheck = false;
-		botFour_stopmovingupper = false;
-		botFour_gunStop = false;
+			botFourTwo_robotAngle = 0;
+			botFourTwo_upperLegLength = 0.95 * botFourTwo_bodyLength;
+			botFourTwo_upperLegWidth = 0.125 * botFourTwo_bodyWidth;
+			botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
+			botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
+			botFourTwo_footLength = botFourTwo_lowerLegLength / 3.0;
+			botFourTwo_ballJointLength = botFourTwo_lowerLegLength / 5.0;
+			botFourTwo_footWidth = 2.0 * botFourTwo_lowerLegWidth;
+			botFourTwo_bar = 1.6 * botFourTwo_bodyWidth;
+			botFourTwo_footDepth = 2.0 * botFourTwo_lowerLegWidth;
 
-		botFourOne_robotAngle = 0;
-		botFourOne_upperLegLength = 0.95 * botFourOne_bodyLength;
-		botFourOne_upperLegWidth = 0.125 * botFourOne_bodyWidth;
-		botFourOne_lowerLegLength = botFourOne_upperLegLength;
-		botFourOne_lowerLegWidth = botFourOne_upperLegWidth;
-		botFourOne_footLength = botFourOne_lowerLegLength / 3.0;
-		botFourOne_ballJointLength = botFourOne_lowerLegLength / 5.0;
-		botFourOne_footWidth = 2.0 * botFourOne_lowerLegWidth;
-		botFourOne_bar = 1.6 * botFourOne_bodyWidth;
-		botFourOne_footDepth = 2.0 * botFourOne_lowerLegWidth;
+			botFour_collapseOngoing = false;
+			botFour_walkcheck = false;
 
-		botFourTwo_robotAngle = 0;
-		botFourTwo_upperLegLength = 0.95 * botFourTwo_bodyLength;
-		botFourTwo_upperLegWidth = 0.125 * botFourTwo_bodyWidth;
-		botFourTwo_lowerLegLength = botFourTwo_upperLegLength;
-		botFourTwo_lowerLegWidth = botFourTwo_upperLegWidth;
-		botFourTwo_footLength = botFourTwo_lowerLegLength / 3.0;
-		botFourTwo_ballJointLength = botFourTwo_lowerLegLength / 5.0;
-		botFourTwo_footWidth = 2.0 * botFourTwo_lowerLegWidth;
-		botFourTwo_bar = 1.6 * botFourTwo_bodyWidth;
-		botFourTwo_footDepth = 2.0 * botFourTwo_lowerLegWidth;
+			// Bot Three
+			botThree_robotAngle = 0.0;
+			botThree_cannonAngle = 0.0;
+			botThree_bodyAngle = 0.0;
+			botThreeOne_rightHipAngle = 45.0;
+			botThreeOne_leftHipAngle = 45.0;
+			botThreeOne_rightKneeAngle = 270.0;
+			botThreeOne_leftKneeAngle = 270.0;
+			botThreeOne_leftWalkIndex = 67;
+			botThreeOne_rightWalkIndex = 0;
+			botThreeTwo_rightHipAngle = 45.0;
+			botThreeTwo_leftHipAngle = 45.0;
+			botThreeTwo_rightKneeAngle = 270.0;
+			botThreeTwo_leftKneeAngle = 270.0;
+			botThreeTwo_leftWalkIndex = 67;
+			botThreeTwo_rightWalkIndex = 0;
 
-		botFour_collapseOngoing = false;
-		botFour_walkcheck = false;
+			botThree_cannonRotation = false;
+			botThree_walkCycle = false;
 
-		// Bot Three
-		botThree_robotAngle = 0.0;
-		botThree_cannonAngle = 0.0;
-		botThree_bodyAngle = 0.0;
-		botThreeOne_rightHipAngle = 45.0;
-		botThreeOne_leftHipAngle = 45.0;
-		botThreeOne_rightKneeAngle = 270.0;
-		botThreeOne_leftKneeAngle = 270.0;
-		botThreeOne_leftWalkIndex = 67;
-		botThreeOne_rightWalkIndex = 0;
-		botThreeTwo_rightHipAngle = 45.0;
-		botThreeTwo_leftHipAngle = 45.0;
-		botThreeTwo_rightKneeAngle = 270.0;
-		botThreeTwo_leftKneeAngle = 270.0;
-		botThreeTwo_leftWalkIndex = 67;
-		botThreeTwo_rightWalkIndex = 0;
+			// General
+			rotateSpeed = 2.0;
+			botsMoving = false;
+			cannon_resetProjectileArray();
 
-		botThree_cannonRotation = false;
-		botThree_walkCycle = false;
+			botThreeOne_active = true;
+			botThreeOne_Y = botThree_startingY;
+			botThreeOne_Z = startingZ;
+			botThreeTwo_active = true;
+			botThreeTwo_Y = botThree_startingY;
+			botThreeTwo_Z = startingZ;
 
-		// General
-		rotateSpeed = 2.0;
-		botsMoving = false;
-
-		botThreeOne_active = true;
-		botThreeOne_Y = botThree_startingY;
-		botThreeOne_Z = startingZ;
-		botThreeTwo_active = true;
-		botThreeTwo_Y = botThree_startingY;
-		botThreeTwo_Z = startingZ;
-
-		botFourOne_active = true;
-		botFourOne_Y = botFour_startingY;
-		botFourOne_Z = startingZ;
-		botFourTwo_active = true;
-		botFourTwo_Y = botFour_startingY;
-		botFourTwo_Z = startingZ;
-		break;
-
-	case 'a':
-	case 'A':
-		if (!botsMoving)
-		{
-			botsMoving = true;
-			glutTimerFunc(10, translateAnimationHandler, 0);
-		}
-		break;
-	case 32: //Space
-		cannon_addProjectile();
-		break;
+			botFourOne_active = true;
+			botFourOne_Y = botFour_startingY;
+			botFourOne_Z = startingZ;
+			botFourTwo_active = true;
+			botFourTwo_Y = botFour_startingY;
+			botFourTwo_Z = startingZ;
+			break;
 	}
 
 	glutPostRedisplay();   // Trigger a window redisplay

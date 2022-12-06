@@ -97,8 +97,8 @@ void drawRobot(int botNum)
 			break;
 		}
 
-		if (help == true)
-			{ drawCoordinates(); }
+		/*if (help == true)
+			{ drawCoordinates(); }*/
 	glPopMatrix();
 }
 
@@ -212,7 +212,7 @@ void translateAnimationHandler(int param)
 		}
 	
 		// Update Z
-		double speed = 0.2;
+		double speed = 0.1;
 
 		if (botThreeOne_active)
 		{
