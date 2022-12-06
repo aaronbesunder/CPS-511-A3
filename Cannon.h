@@ -1,6 +1,7 @@
-﻿#include "Array.h"
+﻿#pragma once
+
+#include "Array.h"
 #include "Window.h"
-//#include <math.h>
 #include <corecrt_math_defines.h>
 
 // -----------------
