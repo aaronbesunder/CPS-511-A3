@@ -265,16 +265,29 @@ void drawDefensiveCannon()
 void cannon_updateCollisionBoxes()
 {
 	// Cannon
-	float xDelta = 4;
+	float xDelta = 1.5;
 	float yDelta = 2;
-	float zDelta = 2;
+	float zDelta = 5;
 
-	cannon_collisionMaxX = cannon_xPos + xDelta;
-	cannon_collisionMinX = cannon_xPos - xDelta;
 	cannon_collisionMaxY = -18 + yDelta;
 	cannon_collisionMinY = -18 - yDelta;
-	cannon_collisionMaxZ = 45 + zDelta - 1;
+	cannon_collisionMaxZ = 45 + (zDelta/2) - 1;
 	cannon_collisionMinZ = 45 - zDelta - 1;
+
+	float toRad = M_PI / 180;
+	//X
+	if (cannon_rotateX > 0)
+	{ 
+		cannon_collisionMinX = tan(-cannon_rotateX * toRad) - xDelta;
+		cannon_collisionMaxX = xDelta;
+		cannon_collisionMinZ = 45 - (tan(-cannon_rotateX * toRad) + zDelta);
+	}
+	else
+	{
+		cannon_collisionMinX = -xDelta;
+		cannon_collisionMaxX = tan(-cannon_rotateX * toRad) + xDelta;
+		cannon_collisionMinZ = 45 - (tan(cannon_rotateX * toRad) + zDelta);
+	}
 }
 
 bool cannon_checkCollision(float xPos, float yPos, float zPos)

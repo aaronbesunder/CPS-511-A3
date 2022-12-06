@@ -168,6 +168,9 @@ void display(void)
 	//Top Down
 	//gluLookAt(0.0, 100, 80.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+	//Cannon Top View
+	//gluLookAt(0.0, 15, 45.0, 0.0, 0.0, 45.0, 0.0, 0.0, -1.0);
+
 	//Cannon Back View
 	//gluLookAt(0.0, -15.5, 60, 0.0, -10.5, 0.0, 0.0, 1.0, 0.0);
 
