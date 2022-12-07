@@ -107,17 +107,8 @@ void drawRobot(int botNum)
 		case 1:
 			glTranslatef(botFourOne_X, botFourOne_Y, botFourOne_Z);
 			botFour_drawRobot(1);
-			bot_addProjectile();
-			bot_drawProjectile(1);
-			bot_drawProjectile(2);
-			bot_drawProjectile(3);
-			bot_drawProjectile(4);
-			bot_drawProjectile(5);
-			bot_drawProjectile(6);
-			bot_drawProjectile(7);
-			bot_drawProjectile(8);
-			bot_drawProjectile(9);
-			bot_drawProjectile(10);
+			
+			
 			break;
 		case 2:
 			glTranslatef(botThreeOne_X, botThreeOne_Y, botThreeOne_Z);
@@ -225,11 +216,11 @@ void bot_drawProjectile(int index)
 {
 	if (projectile_active[index])
 	{
-		float xAng = projectile_xAng[index];
-		float yAng = projectile_yAng[index];
-		float xPos = projectile_xPos[index];
-		float yPos = projectile_yPos[index];
-		float zPos = projectile_zPos[index];
+		float xAng = bot_projectile_xAng[index];
+		float yAng = bot_projectile_yAng[index];
+		float xPos = bot_projectile_xPos[index];
+		float yPos = bot_projectile_yPos[index];
+		float zPos = bot_projectile_zPos[index];
 
 		glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
@@ -259,7 +250,7 @@ void bot_addProjectile()
 	for (int index = 0; index < bot_maxProjectileNum; index++)
 	{
 		// If one is not active
-		if (!projectile_active[index])
+		if (!bot_projectile_active[index])
 		{
 			// Insert into array
 			bot_projectile_active[index] = true;
@@ -305,11 +296,11 @@ void bot_projectileAnimationHandler(int param)
 			{
 				float toRad = M_PI / 180;
 
-				float xAng = projectile_xAng[index];
-				float yAng = projectile_yAng[index];
-				float xPos = projectile_xPos[index];
-				float yPos = projectile_yPos[index];
-				float zPos = projectile_zPos[index];
+				float xAng = bot_projectile_xAng[index];
+				float yAng = bot_projectile_yAng[index];
+				float xPos = bot_projectile_xPos[index];
+				float yPos = bot_projectile_yPos[index];
+				float zPos = bot_projectile_zPos[index];
 
 				//float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
 				//float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
@@ -320,7 +311,7 @@ void bot_projectileAnimationHandler(int param)
 				// Update array
 				//projectile_xPos[index] = xPos;
 				//projectile_yPos[index] = yPos;
-				projectile_zPos[index] = zPos;
+				bot_projectile_zPos[index] = zPos;
 
 				// Deactivate if reached farplane
 				if (bot_projectile_zPos[index] >= nearPlane)
@@ -360,7 +351,9 @@ void translateAnimationHandler(int param)
 		// Walk Cycle: Bot Four
 		if (botFour_walkcheck == false) {
 			botFour_walkcheck = true;
+			
 			glutIdleFunc(botFour_takeStep);
+
 			
 			
 		}
