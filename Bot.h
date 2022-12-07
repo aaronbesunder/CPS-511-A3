@@ -318,12 +318,12 @@ void bot_projectileAnimationHandler(int param)
 				zPos += zAdd;
 
 				// Update array
-				projectile_xPos[index] = xPos;
-				projectile_yPos[index] = yPos;
+				//projectile_xPos[index] = xPos;
+				//projectile_yPos[index] = yPos;
 				projectile_zPos[index] = zPos;
 
 				// Deactivate if reached farplane
-				if (projectile_zPos[index] >= farPlane)
+				if (projectile_zPos[index] >= nearPlane)
 				{
 					projectile_active[index] = false;
 				}
