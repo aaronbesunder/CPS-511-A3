@@ -342,6 +342,8 @@ void cannon_collapseAnimationHandler(int param)
 				{ cannon_rotateX += collapseSpeed; done = false; }
 			else if (cannon_rotateX < xEnd)
 				{ cannon_rotateX -= collapseSpeed; done = false; }
+			cannon_rotateY = roundf(cannon_rotateY * 10) /  10;
+			cannon_rotateX = roundf(cannon_rotateX * 10) /  10;
 		}
 
 		cannon_updateCollisionBoxes();

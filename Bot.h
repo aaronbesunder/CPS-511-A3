@@ -261,6 +261,12 @@ void bot_drawProjectile(int index)
 				break;
 		}
 
+		//drawCollisionBox(
+		//	xPos + botX - 0.5, xPos + botX + 0.5, 
+		//	yPos + botY - 0.5, yPos + botY + 0.5, 
+		//	zPos + botZ - 0.5 + projectile_depth, zPos + botZ + 0.5 + projectile_depth
+		//);
+
 		glPushMatrix();
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, botprojMat_ambient);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, botprojMat_specular);
@@ -436,7 +442,7 @@ void bot_projectileAnimationHandler(int param)
 				}
 
 				// Check for collision
-				if (cannon_checkCollision(xPos + botX, yPos + botY, zPos + botZ))
+				if (cannon_checkCollision(xPos + botX, yPos + botY, zPos + botZ + projectile_depth))
 					{ bot_projectile_active[index] = false; }
 			}
 
@@ -566,7 +572,7 @@ void translateAnimationHandler(int param)
 		if ((botThreeOne_active) || (botThreeTwo_active) || (botFourOne_active) || (botFourTwo_active))
 			{ glutTimerFunc(10, translateAnimationHandler, 0); }
 		else
-			{ botsMoving = false; }
+			{ botsMoving = false; collapseCannon(); }
 	}
 }
 
