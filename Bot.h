@@ -342,7 +342,7 @@ void bot_projectileAnimationHandler(int param)
 
 				//float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
 				//float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
-				float zAdd = cannon_projectileSpeed;
+				float zAdd = bot_projectileSpeed;
 
 				zPos += zAdd;
 
