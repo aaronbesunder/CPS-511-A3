@@ -100,6 +100,7 @@ void cannon_addProjectile();
 void cannon_projectileAnimationHandler(int);
 void cannon_printProjectileArray();
 void cannon_resetProjectileArray();
+void cannon_updateProjectileExist();
 
 //Projectile Arrays
 const int cannon_maxProjectileNum = 10;
@@ -249,13 +250,13 @@ void drawDefensiveCannon()
 		deleteBuffers();
 	glPopMatrix();
 
-	//Draw where collison box is
-	cannon_updateCollisionBoxes();
-	drawCollisionBox(
-		cannon_collisionMinX, cannon_collisionMaxX, 
-		cannon_collisionMinY, cannon_collisionMaxY, 
-		cannon_collisionMinZ, cannon_collisionMaxZ
-	);
+	////Draw where collison box is
+	//cannon_updateCollisionBoxes();
+	//drawCollisionBox(
+	//	cannon_collisionMinX, cannon_collisionMaxX, 
+	//	cannon_collisionMinY, cannon_collisionMaxY, 
+	//	cannon_collisionMinZ, cannon_collisionMaxZ
+	//);
 }
 
 // ------------------------
@@ -265,16 +266,27 @@ void drawDefensiveCannon()
 void cannon_updateCollisionBoxes()
 {
 	// Cannon
-	float xDelta = 4;
+	float xDelta = 1.5;
 	float yDelta = 2;
-	float zDelta = 2;
+	float zDelta = 5;
 
-	cannon_collisionMaxX = cannon_xPos + xDelta;
-	cannon_collisionMinX = cannon_xPos - xDelta;
 	cannon_collisionMaxY = -18 + yDelta;
 	cannon_collisionMinY = -18 - yDelta;
-	cannon_collisionMaxZ = 45 + zDelta - 1;
-	cannon_collisionMinZ = 45 - zDelta - 1;
+	cannon_collisionMaxZ = 45 + (zDelta/2) - 1;
+
+	float toRad = M_PI / 180;
+	if (cannon_rotateX > 0)
+	{ 
+		cannon_collisionMinX = tan(-cannon_rotateX * toRad) - xDelta;
+		cannon_collisionMaxX = xDelta;
+		cannon_collisionMinZ = 45 - (tan(-cannon_rotateX * toRad) + zDelta);
+	}
+	else
+	{
+		cannon_collisionMinX = -xDelta;
+		cannon_collisionMaxX = tan(-cannon_rotateX * toRad) + xDelta;
+		cannon_collisionMinZ = 45 - (tan(cannon_rotateX * toRad) + zDelta);
+	}
 }
 
 bool cannon_checkCollision(float xPos, float yPos, float zPos)
@@ -315,7 +327,7 @@ void cannon_collapseAnimationHandler(int param)
 	if (cannon_collapseOngoing)
 	{
 		bool done = true;
-		float collapseSpeed = -0.07;
+		float collapseSpeed = -0.1;
 		float yEnd = -20;
 		float xEnd = 0;
 
@@ -373,19 +385,19 @@ void cannon_shakeAnimationHandler(int param)
 		//         |             |   4        |
 		//         |             | 2          |
 		//         | ----------- 0 ---------- |
-		float oneMotion = 10;
+		float oneMotion = 20;
 		float leftOneStart = 0;
 		float rightStart = leftOneStart + oneMotion;
 		float leftTwoStart = rightStart + (oneMotion * 2);
 		float restStart = leftTwoStart + oneMotion;
-		float restEnd = restStart + oneMotion;
+		float restEnd = restStart + (oneMotion * 5);
 
 		// Reset shake if rest end
 		if (cannon_shakeSeconds >= restEnd)
 			{ cannon_shakeSeconds = leftOneStart; }
 
 		// Shake
-		float shakeSpeed = 1;
+		float shakeSpeed = 0.005;
 
 		if ((cannon_shakeSeconds >= leftOneStart) && (cannon_shakeSeconds < rightStart))
 		{ cannon_xPos -= shakeSpeed; }
@@ -442,32 +454,33 @@ void cannon_drawProjectile(int index)
 
 void cannon_addProjectile()
 {
-
-	// Go through projectile list to see if there is an empty one
-	for (int index = 0; index < cannon_maxProjectileNum; index++)
+	if (cannon_active)
 	{
-		// If one is not active
-		if (!projectile_active[index])
+		// Go through projectile list to see if there is an empty one
+		for (int index = 0; index < cannon_maxProjectileNum; index++)
 		{
-			// Insert into array
-			projectile_active[index] = true;
-			projectile_xAng[index] = cannon_rotateX;
-			projectile_yAng[index] = cannon_rotateY;
-			projectile_xPos[index] = 0;
-			projectile_yPos[index] = 0;
-			projectile_zPos[index] = 0;
-
-			if (cannon_projectileExists == false)
+			// If one is not active
+			if (!projectile_active[index])
 			{
-				cannon_projectileExists = true;
-				glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
-			}
+				// Insert into array
+				projectile_active[index] = true;
+				projectile_xAng[index] = cannon_rotateX;
+				projectile_yAng[index] = cannon_rotateY;
+				projectile_xPos[index] = 0;
+				projectile_yPos[index] = 0;
+				projectile_zPos[index] = 0;
 
-			//cannon_printProjectileArray();
-			return;
-		}//if not active
-	}//for index
+				if (cannon_projectileExists == false)
+				{
+					cannon_projectileExists = true;
+					glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+				}
 
+				//cannon_printProjectileArray();
+				return;
+			}//if not active
+		}//for index
+	}
 }
 
 void cannon_projectileAnimationHandler(int param)
@@ -514,11 +527,11 @@ void cannon_projectileAnimationHandler(int param)
 
 				// Deactivate if reached farplane
 				if (projectile_zPos[index] >= farPlane)
-					{ projectile_active[index] = false; }
+					{ projectile_active[index] = false; cannon_updateProjectileExist(); }
 
 				// Check for collision
 				if (bot_checkBotCollision(xPos, yPos, zPos))
-					{ projectile_active[index] = false; }
+					{ projectile_active[index] = false; cannon_updateProjectileExist(); }
 			}
 
 		}//for index
@@ -552,6 +565,7 @@ void cannon_printProjectileArray()
 
 void cannon_resetProjectileArray()
 {
+	cannon_projectileExists = false;
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
 	{
 		projectile_active[index] = false;
@@ -561,6 +575,19 @@ void cannon_resetProjectileArray()
 		projectile_yPos[index] = 0;
 		projectile_zPos[index] = 0;
 	}
+}
+
+void cannon_updateProjectileExist()
+{
+	for (int index = 0; index < cannon_maxProjectileNum; index++)
+	{
+		if (projectile_active[index])
+		{
+			cannon_projectileExists = true;
+			return;
+		}
+	}
+	cannon_projectileExists = false;
 }
 
 #pragma once
