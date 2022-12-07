@@ -286,7 +286,7 @@ void bot_projectileAnimationHandler(int param)
 {
 	if (bot_projectileExists)
 	{
-		for (int index = 0; index < cannon_maxProjectileNum; index++)
+		for (int index = 0; index < bot_maxProjectileNum; index++)
 		{
 
 			//     X/Y/Z
@@ -301,7 +301,7 @@ void bot_projectileAnimationHandler(int param)
 			//  ‾‾
 
 			// Update only if active
-			if (projectile_active[index])
+			if (bot_projectile_active[index])
 			{
 				float toRad = M_PI / 180;
 
@@ -311,8 +311,8 @@ void bot_projectileAnimationHandler(int param)
 				float yPos = projectile_yPos[index];
 				float zPos = projectile_zPos[index];
 
-				float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
-				float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
+				//float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
+				//float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
 				float zAdd = cannon_projectileSpeed;
 
 				zPos += zAdd;
@@ -323,22 +323,22 @@ void bot_projectileAnimationHandler(int param)
 				projectile_zPos[index] = zPos;
 
 				// Deactivate if reached farplane
-				if (projectile_zPos[index] >= nearPlane)
+				if (bot_projectile_zPos[index] >= nearPlane)
 				{
-					projectile_active[index] = false;
+					bot_projectile_active[index] = false;
 				}
 
 				// Check for collision
 				if (bot_checkBotCollision(xPos, yPos, zPos))
 				{
-					projectile_active[index] = false;
+					bot_projectile_active[index] = false;
 				}
 			}
 
 		}//for index
 
 		glutPostRedisplay();
-		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
+		glutTimerFunc(10, bot_projectileAnimationHandler, 0);
 	}//if projectile exists
 }
 
