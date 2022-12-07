@@ -30,8 +30,11 @@ GLfloat botFourOne_Z = startingZ;
 // BotFour: Two
 GLfloat botFourTwo_Z = startingZ;
 
+// --- Projectile ---
 float bot_projectileSpeed = 1;
 bool bot_projectileExists = false;
+bool bot_isFiring = false;
+
 // Projectile Dimensions
 float botproj_height = 0.3;
 float botproj_width = 0.3;
@@ -44,16 +47,18 @@ GLfloat botprojMat_diffuse[] = { 0.1f, 0.1f, 0.1, 0.2f };
 GLfloat botprojMat_shininess[] = { 5.0F };
 
 bool bot_projectile_active[bot_maxProjectileNum];
+int bot_projectile_botNum[bot_maxProjectileNum];
 float bot_projectile_xAng[bot_maxProjectileNum];
 float bot_projectile_yAng[bot_maxProjectileNum];
 float bot_projectile_xPos[bot_maxProjectileNum];
 float bot_projectile_yPos[bot_maxProjectileNum];
 float bot_projectile_zPos[bot_maxProjectileNum]; // Distance
 void bot_drawProjectile(int);
-void bot_addProjectile();
+void bot_addProjectile(int);
 void bot_projectileAnimationHandler(int);
 void bot_printProjectileArray();
 void bot_resetProjectileArray();
+void bot_updateProjectileExist();
 
 // --- Collision Box ---
 
@@ -107,18 +112,6 @@ void drawRobot(int botNum)
 		case 1:
 			glTranslatef(botFourOne_X, botFourOne_Y, botFourOne_Z);
 			botFour_drawRobot(1);
-			bot_addProjectile();
-			bot_drawProjectile(1);
-			bot_drawProjectile(2);
-			bot_drawProjectile(3);
-			bot_drawProjectile(4);
-			bot_drawProjectile(5);
-			bot_drawProjectile(6);
-			bot_drawProjectile(7);
-			bot_drawProjectile(8);
-			bot_drawProjectile(9);
-			bot_drawProjectile(10);
-			break;
 		case 2:
 			glTranslatef(botThreeOne_X, botThreeOne_Y, botThreeOne_Z);
 			botThree_drawRobot(1);
@@ -135,6 +128,11 @@ void drawRobot(int botNum)
 
 		/*if (help == true)
 			{ drawCoordinates(); }*/
+
+		// Projectile
+		for (int index = 0; index < bot_maxProjectileNum; index++)
+				{bot_drawProjectile(index);}
+
 	glPopMatrix();
 }
 
@@ -231,28 +229,57 @@ void bot_drawProjectile(int index)
 		float yPos = projectile_yPos[index];
 		float zPos = projectile_zPos[index];
 
+		float botX;
+		float botY;
+		float botZ;
+		int botNum = bot_projectile_botNum[index];
+
+		switch (botNum)
+		{
+			case 1:
+				botX = botFourOne_X;
+				botY = botFourOne_Y;
+				botZ = botFourOne_Z;
+				break;
+			case 2:
+				botX = botThreeOne_X;
+				botY = botThreeOne_Y;
+				botZ = botThreeOne_Z;
+				break;
+			case 3:
+				botX = botFourTwo_X;
+				botY = botFourTwo_Y;
+				botZ = botFourTwo_Z;
+				break;
+			case 4:
+				botX = botThreeTwo_X;
+				botY = botThreeTwo_Y;
+				botZ = botThreeTwo_Z;
+				break;
+		}
+
 		glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
 
-		glTranslatef(botFourOne_X+30, botFourOne_Y+5, botFourOne_Z+20); // Comment out to make projectile stand still
-		glTranslatef(xPos, yPos, zPos);
-		// Rotate according to use mouse input
-		//glRotatef(yAng, 1, 0, 0);
-		//glRotatef(xAng, 0, 1, 0);
+			glTranslatef(botX, botY, botZ);
+			glTranslatef(xPos, yPos, zPos); // Comment out to make projectile stand still
+			// Rotate according to use mouse input
+			//glRotatef(yAng, 1, 0, 0);
+			//glRotatef(xAng, 0, 1, 0);
 
-		//glScalef(x, y, z);
-		glScalef(projectile_width, projectile_height, projectile_depth);
+			//glScalef(x, y, z);
+			glScalef(projectile_width, projectile_height, projectile_depth);
 
-		//gluCylinder(quad, base radius, top radius, height, slice, stacks)
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
+			//gluCylinder(quad, base radius, top radius, height, slice, stacks)
+			gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.0, 20, 1);
 
 		glPopMatrix();
 	}
 }
-void bot_addProjectile()
+void bot_addProjectile(int botNum)
 {
 
 	// Go through projectile list to see if there is an empty one
@@ -263,6 +290,7 @@ void bot_addProjectile()
 		{
 			// Insert into array
 			bot_projectile_active[index] = true;
+			bot_projectile_botNum[index] = botNum;
 			bot_projectile_xAng[index] = 0;
 			bot_projectile_yAng[index] = 0;
 			bot_projectile_xPos[index] = 0;
@@ -340,6 +368,45 @@ void bot_projectileAnimationHandler(int param)
 		glutPostRedisplay();
 		glutTimerFunc(10, cannon_projectileAnimationHandler, 0);
 	}//if projectile exists
+}
+
+void bot_addProjectileAnimationHandler(int param)
+{
+	if (bot_isFiring)
+	{
+		int min = 1;
+		int max = 4;
+		int randNum = rand() % (max + 1 - min) + min;
+		bot_addProjectile(randNum);
+		glutTimerFunc(100, bot_addProjectileAnimationHandler, 0);
+	}
+}
+
+void bot_resetProjectileArray()
+{
+	bot_projectileExists = false;
+	for (int index = 0; index < bot_maxProjectileNum; index++)
+	{
+		bot_projectile_active[index] = false;
+		bot_projectile_xAng[index] = 0;
+		bot_projectile_yAng[index] = 0;
+		bot_projectile_xPos[index] = 0;
+		bot_projectile_yPos[index] = 0;
+		bot_projectile_zPos[index] = 0;
+	}
+}
+
+void bot_updateProjectileExist()
+{
+	for (int index = 0; index < bot_maxProjectileNum; index++)
+	{
+		if (bot_projectile_active[index])
+		{
+			bot_projectileExists = true;
+			return;
+		}
+	}
+	bot_projectileExists = false;
 }
 
 // ------------------

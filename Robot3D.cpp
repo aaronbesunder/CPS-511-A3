@@ -223,6 +223,9 @@ void keyboard(unsigned char key, int x, int y)
 			if (!botsMoving)
 			{
 				botsMoving = true;
+				bot_resetProjectileArray();
+				glutTimerFunc(100, bot_addProjectileAnimationHandler, 0);
+				bot_isFiring = true;
 				glutTimerFunc(10, translateAnimationHandler, 0);
 			}
 			break;
@@ -293,6 +296,8 @@ void keyboard(unsigned char key, int x, int y)
 			// General
 			rotateSpeed = 2.0;
 			botsMoving = false;
+			bot_isFiring = false;
+			bot_resetProjectileArray();
 
 			botThreeOne_active = true;
 			botThreeOne_Y = botThree_startingY;
