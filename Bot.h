@@ -222,7 +222,7 @@ bool bot_checkBotCollision(float xPos, float yPos, float zPos)
 
 void bot_drawProjectile(int index)
 {
-	if (projectile_active[index])
+	if ((bot_projectileExists) && (projectile_active[index]))
 	{
 		float xAng = bot_projectile_xAng[index];
 		float yAng = bot_projectile_yAng[index];
@@ -230,9 +230,9 @@ void bot_drawProjectile(int index)
 		float yPos = bot_projectile_yPos[index];
 		float zPos = bot_projectile_zPos[index];
 
-		float botX;
-		float botY;
-		float botZ;
+		float botX = 0;
+		float botY = 0;
+		float botZ = 0;
 		int botNum = bot_projectile_botNum[index];
 
 		switch (botNum)
