@@ -31,7 +31,7 @@ GLfloat botFourOne_Z = startingZ;
 GLfloat botFourTwo_Z = startingZ;
 
 // --- Projectile ---
-float bot_projectileSpeed = 1;
+float bot_projectileSpeed = 0.5;
 bool bot_projectileExists = false;
 bool bot_isFiring = false;
 
@@ -39,14 +39,15 @@ bool bot_isFiring = false;
 float botproj_height = 0.3;
 float botproj_width = 0.3;
 float botproj_depth = 5;
-const int bot_maxProjectileNum = 10;
+const int bot_maxProjectileNum = 30;
 
-GLfloat botprojMat_ambient[] = { 0.0, 1.0, 0.0, 1.0 };
+GLfloat botprojMat_ambient[] = { 1.0, 0.0, 0.0, 1.0 };
 GLfloat botprojMat_specular[] = { 0.45, 0.55, 0.45, 1.0 };
-GLfloat botprojMat_diffuse[] = { 0.1f, 0.1f, 0.1, 0.2f };
+GLfloat botprojMat_diffuse[] = { 0.1f, 0.1f, 0.1f, 0.2f };
 GLfloat botprojMat_shininess[] = { 5.0F };
 
 bool bot_projectile_active[bot_maxProjectileNum];
+bool bot_projectile_cannonHit[bot_maxProjectileNum];
 int bot_projectile_botNum[bot_maxProjectileNum];
 float bot_projectile_xAng[bot_maxProjectileNum];
 float bot_projectile_yAng[bot_maxProjectileNum];
@@ -130,11 +131,12 @@ void drawRobot(int botNum)
 		/*if (help == true)
 			{ drawCoordinates(); }*/
 
-		// Projectile
-		for (int index = 0; index < bot_maxProjectileNum; index++)
-				{bot_drawProjectile(index);}
-
 	glPopMatrix();
+}
+
+float DotProduct(float lhsX, float lhsY, float lhsZ, float rhsX, float rhsY, float rhsZ)
+{
+	return lhsX * rhsX + lhsY * rhsY + lhsZ * rhsZ;
 }
 
 void bot_updateCollisionBoxes()
@@ -222,7 +224,7 @@ bool bot_checkBotCollision(float xPos, float yPos, float zPos)
 
 void bot_drawProjectile(int index)
 {
-	if ((bot_projectileExists) && (projectile_active[index]))
+	if ((bot_projectileExists) && (bot_projectile_active[index]))
 	{
 		float xAng = bot_projectile_xAng[index];
 		float yAng = bot_projectile_yAng[index];
@@ -260,16 +262,17 @@ void bot_drawProjectile(int index)
 		}
 
 		glPushMatrix();
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, projectileMat_specular);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, projectileMat_diffuse);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, projectileMat_shininess);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, botprojMat_ambient);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, botprojMat_specular);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, botprojMat_diffuse);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, botprojMat_shininess);
 
 			glTranslatef(botX, botY, botZ);
 			glTranslatef(xPos, yPos, zPos); // Comment out to make projectile stand still
+			
 			// Rotate according to use mouse input
-			//glRotatef(yAng, 1, 0, 0);
-			//glRotatef(xAng, 0, 1, 0);
+			glRotatef(-yAng, 1, 0, 0);
+			glRotatef(-xAng, 0, 1, 0);
 
 			//glScalef(x, y, z);
 			glScalef(projectile_width, projectile_height, projectile_depth);
@@ -289,14 +292,60 @@ void bot_addProjectile(int botNum)
 		// If one is not active
 		if (!bot_projectile_active[index])
 		{
+			int min = -30;
+			int max = 30;
+
 			// Insert into array
 			bot_projectile_active[index] = true;
 			bot_projectile_botNum[index] = botNum;
-			bot_projectile_xAng[index] = 0;
-			bot_projectile_yAng[index] = 0;
+			bot_projectile_xAng[index] = rand() % (max + 1 - min) + min;
+			bot_projectile_yAng[index] = rand() % (max + 1 - min) + min;
 			bot_projectile_xPos[index] = 0;
 			bot_projectile_yPos[index] = 0;
-			bot_projectile_zPos[index] = 20;
+			bot_projectile_zPos[index] = 0;
+
+			/*float botX = 0;
+			float botY = 0;
+			float botZ = 0;
+			switch (botNum)
+			{
+				case 1:
+					botX = botFourOne_X;
+					botY = botFourOne_Y;
+					botZ = botFourOne_Z;
+					break;
+				case 2:
+					botX = botThreeOne_X;
+					botY = botThreeOne_Y;
+					botZ = botThreeOne_Z;
+					break;
+				case 3:
+					botX = botFourTwo_X;
+					botY = botFourTwo_Y;
+					botZ = botFourTwo_Z;
+					break;
+				case 4:
+					botX = botThreeTwo_X;
+					botY = botThreeTwo_Y;
+					botZ = botThreeTwo_Z;
+					break;
+			}
+			float deltaX = botX;
+			float deltaY = botY + 1;
+			float deltaZ = botZ + 45;
+			float dpX = DotProduct(0, 0, 0, botX, 0, 0);
+			float dpY = DotProduct(0, -19, 0, 0, botY, 0);
+			float lnX = 0 * botX;
+			float lnY = -19 * botY;
+			float angX = acos(dpX/lnX);
+			float angY = atan(dpY/lnY);
+			bot_projectile_xAng[index] = angX;
+			bot_projectile_yAng[index] = angY;*/
+
+			//// Will hit?
+			//float randNum = rand() % (max + 1 - min) + min;
+			//if (randNum == 0)
+			//	{ bot_projectile_cannonHit[index] = true; }
 
 			if (bot_projectileExists == false)
 			{
@@ -340,28 +389,55 @@ void bot_projectileAnimationHandler(int param)
 				float yPos = bot_projectile_yPos[index];
 				float zPos = bot_projectile_zPos[index];
 
-				//float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
-				//float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
+				float xAdd = tan(-xAng * toRad) * bot_projectileSpeed;
+				float yAdd = sin(yAng * toRad) * bot_projectileSpeed;
 				float zAdd = bot_projectileSpeed;
 
+				xPos += xAdd;
+				yPos += yAdd;
 				zPos += zAdd;
 
 				// Update array
-				//projectile_xPos[index] = xPos;
-				//projectile_yPos[index] = yPos;
+				bot_projectile_xPos[index] = xPos;
+				bot_projectile_yPos[index] = yPos;
 				bot_projectile_zPos[index] = zPos;
 
 				// Deactivate if reached farplane
-				if (bot_projectile_zPos[index] >= nearPlane)
+				if (bot_projectile_zPos[index] >= farPlane)
+					{ bot_projectile_active[index] = false; }
+
+				float botX = 0;
+				float botY = 0;
+				float botZ = 0;
+				int botNum = bot_projectile_botNum[index];
+
+				switch (botNum)
 				{
-					bot_projectile_active[index] = false;
+					case 1:
+						botX = botFourOne_X;
+						botY = botFourOne_Y;
+						botZ = botFourOne_Z;
+						break;
+					case 2:
+						botX = botThreeOne_X;
+						botY = botThreeOne_Y;
+						botZ = botThreeOne_Z;
+						break;
+					case 3:
+						botX = botFourTwo_X;
+						botY = botFourTwo_Y;
+						botZ = botFourTwo_Z;
+						break;
+					case 4:
+						botX = botThreeTwo_X;
+						botY = botThreeTwo_Y;
+						botZ = botThreeTwo_Z;
+						break;
 				}
 
 				// Check for collision
-				if (bot_checkBotCollision(xPos, yPos, zPos))
-				{
-					bot_projectile_active[index] = false;
-				}
+				if (cannon_checkCollision(xPos + botX, yPos + botY, zPos + botZ))
+					{ bot_projectile_active[index] = false; }
 			}
 
 		}//for index
@@ -376,10 +452,28 @@ void bot_addProjectileAnimationHandler(int param)
 	if (bot_isFiring)
 	{
 		int min = 1;
-		int max = 4;
+		int max = 100;
 		int randNum = rand() % (max + 1 - min) + min;
-		bot_addProjectile(randNum);
-		glutTimerFunc(100, bot_addProjectileAnimationHandler, 0);
+	
+		bool active = false;
+		switch (randNum)
+		{
+			case 1:
+				active = botFourOne_active;
+				break;
+			case 2:
+				active = botThreeOne_active;
+				break;
+			case 3:
+				active = botFourTwo_active;
+				break;
+			case 4:
+				active = botThreeTwo_active;
+				break;
+		}
+		if (active)
+			{ bot_addProjectile(randNum); } 
+		glutTimerFunc(10, bot_addProjectileAnimationHandler, 0);
 	}
 }
 
@@ -389,6 +483,7 @@ void bot_resetProjectileArray()
 	for (int index = 0; index < bot_maxProjectileNum; index++)
 	{
 		bot_projectile_active[index] = false;
+		bot_projectile_cannonHit[index] = false;
 		bot_projectile_xAng[index] = 0;
 		bot_projectile_yAng[index] = 0;
 		bot_projectile_xPos[index] = 0;

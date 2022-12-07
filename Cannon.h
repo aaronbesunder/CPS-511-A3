@@ -104,12 +104,12 @@ void cannon_updateProjectileExist();
 
 //Projectile Arrays
 const int cannon_maxProjectileNum = 10;
-bool projectile_active[cannon_maxProjectileNum];
-float projectile_xAng[cannon_maxProjectileNum];
-float projectile_yAng[cannon_maxProjectileNum];
-float projectile_xPos[cannon_maxProjectileNum];
-float projectile_yPos[cannon_maxProjectileNum];
-float projectile_zPos[cannon_maxProjectileNum]; // Distance
+bool cannon_projectile_active[cannon_maxProjectileNum];
+float cannon_projectile_xAng[cannon_maxProjectileNum];
+float cannon_projectile_yAng[cannon_maxProjectileNum];
+float cannon_projectile_xPos[cannon_maxProjectileNum];
+float cannon_projectile_yPos[cannon_maxProjectileNum];
+float cannon_projectile_zPos[cannon_maxProjectileNum]; // Distance
 
 // --------------
 // --- Cannon ---
@@ -421,13 +421,13 @@ void cannon_shakeAnimationHandler(int param)
 
 void cannon_drawProjectile(int index)
 {
-	if (projectile_active[index])
+	if (cannon_projectile_active[index])
 	{
-		float xAng = projectile_xAng[index];
-		float yAng = projectile_yAng[index];
-		float xPos = projectile_xPos[index];
-		float yPos = projectile_yPos[index];
-		float zPos = projectile_zPos[index];
+		float xAng = cannon_projectile_xAng[index];
+		float yAng = cannon_projectile_yAng[index];
+		float xPos = cannon_projectile_xPos[index];
+		float yPos = cannon_projectile_yPos[index];
+		float zPos = cannon_projectile_zPos[index];
 
 		glPushMatrix();
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, projectileMat_ambient);
@@ -460,15 +460,15 @@ void cannon_addProjectile()
 		for (int index = 0; index < cannon_maxProjectileNum; index++)
 		{
 			// If one is not active
-			if (!projectile_active[index])
+			if (!cannon_projectile_active[index])
 			{
 				// Insert into array
-				projectile_active[index] = true;
-				projectile_xAng[index] = cannon_rotateX;
-				projectile_yAng[index] = cannon_rotateY;
-				projectile_xPos[index] = 0;
-				projectile_yPos[index] = 0;
-				projectile_zPos[index] = 0;
+				cannon_projectile_active[index] = true;
+				cannon_projectile_xAng[index] = cannon_rotateX;
+				cannon_projectile_yAng[index] = cannon_rotateY;
+				cannon_projectile_xPos[index] = 0;
+				cannon_projectile_yPos[index] = 0;
+				cannon_projectile_zPos[index] = 0;
 
 				if (cannon_projectileExists == false)
 				{
@@ -502,15 +502,15 @@ void cannon_projectileAnimationHandler(int param)
 			//  ‾‾
 
 			// Update only if active
-			if (projectile_active[index])
+			if (cannon_projectile_active[index])
 			{
 				float toRad = M_PI / 180;
 
-				float xAng = projectile_xAng[index];
-				float yAng = projectile_yAng[index];
-				float xPos = projectile_xPos[index];
-				float yPos = projectile_yPos[index];
-				float zPos = projectile_zPos[index];
+				float xAng = cannon_projectile_xAng[index];
+				float yAng = cannon_projectile_yAng[index];
+				float xPos = cannon_projectile_xPos[index];
+				float yPos = cannon_projectile_yPos[index];
+				float zPos = cannon_projectile_zPos[index];
 
 				float xAdd = tan(-xAng * toRad) * cannon_projectileSpeed;
 				float yAdd = sin(yAng * toRad) * cannon_projectileSpeed;
@@ -521,17 +521,17 @@ void cannon_projectileAnimationHandler(int param)
 				zPos += zAdd;
 
 				// Update array
-				projectile_xPos[index] = xPos;
-				projectile_yPos[index] = yPos;
-				projectile_zPos[index] = zPos;
+				cannon_projectile_xPos[index] = xPos;
+				cannon_projectile_yPos[index] = yPos;
+				cannon_projectile_zPos[index] = zPos;
 
 				// Deactivate if reached farplane
-				if (projectile_zPos[index] >= farPlane)
-					{ projectile_active[index] = false; cannon_updateProjectileExist(); }
+				if (cannon_projectile_zPos[index] >= farPlane)
+					{ cannon_projectile_active[index] = false; cannon_updateProjectileExist(); }
 
 				// Check for collision
 				if (bot_checkBotCollision(xPos, yPos, zPos))
-					{ projectile_active[index] = false; cannon_updateProjectileExist(); }
+					{ cannon_projectile_active[index] = false; cannon_updateProjectileExist(); }
 			}
 
 		}//for index
@@ -546,20 +546,20 @@ void cannon_printProjectileArray()
 	printf("\nAngle:\n");
 	printf("   X:");
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
-	{ if (projectile_active[index]) { printf(" %f", projectile_xAng[index]); }}
+	{ if (cannon_projectile_active[index]) { printf(" %f", cannon_projectile_xAng[index]); }}
 	printf("\n   Y:");
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
-		{ if (projectile_active[index]) { printf(" %f", projectile_yAng[index]); }}
+		{ if (cannon_projectile_active[index]) { printf(" %f", cannon_projectile_yAng[index]); }}
 	printf("\nPosition:\n");
 	printf("   X:");
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
-		{ if (projectile_active[index]) { printf(" %f", projectile_xPos[index]); }}
+		{ if (cannon_projectile_active[index]) { printf(" %f", cannon_projectile_xPos[index]); }}
 	printf("\n   Y:");
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
-		{ if (projectile_active[index]) { printf(" %f", projectile_yPos[index]); }}
+		{ if (cannon_projectile_active[index]) { printf(" %f", cannon_projectile_yPos[index]); }}
 	printf("\n   Z:");
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
-		{ if (projectile_active[index]) { printf(" %f", projectile_zPos[index]); }}
+		{ if (cannon_projectile_active[index]) { printf(" %f", cannon_projectile_zPos[index]); }}
 	printf("\n");
 }
 
@@ -568,12 +568,12 @@ void cannon_resetProjectileArray()
 	cannon_projectileExists = false;
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
 	{
-		projectile_active[index] = false;
-		projectile_xAng[index] = 0;
-		projectile_yAng[index] = 0;
-		projectile_xPos[index] = 0;
-		projectile_yPos[index] = 0;
-		projectile_zPos[index] = 0;
+		cannon_projectile_active[index] = false;
+		cannon_projectile_xAng[index] = 0;
+		cannon_projectile_yAng[index] = 0;
+		cannon_projectile_xPos[index] = 0;
+		cannon_projectile_yPos[index] = 0;
+		cannon_projectile_zPos[index] = 0;
 	}
 }
 
@@ -581,7 +581,7 @@ void cannon_updateProjectileExist()
 {
 	for (int index = 0; index < cannon_maxProjectileNum; index++)
 	{
-		if (projectile_active[index])
+		if (cannon_projectile_active[index])
 		{
 			cannon_projectileExists = true;
 			return;

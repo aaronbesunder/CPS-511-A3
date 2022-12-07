@@ -192,6 +192,10 @@ void display(void)
 	drawRobot(3);
 	// Bot Three: Two
 	drawRobot(4);
+
+	// Bot Projectile
+	for (int index = 0; index < bot_maxProjectileNum; index++)
+		{bot_drawProjectile(index);}
 	
 	// Help
 	drawHelp();
@@ -224,7 +228,7 @@ void keyboard(unsigned char key, int x, int y)
 			{
 				botsMoving = true;
 				bot_resetProjectileArray();
-				glutTimerFunc(100, bot_addProjectileAnimationHandler, 0);
+				glutTimerFunc(10, bot_addProjectileAnimationHandler, 0);
 				bot_isFiring = true;
 				glutTimerFunc(10, translateAnimationHandler, 0);
 			}
